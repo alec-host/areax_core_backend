@@ -1,0 +1,17 @@
+How to run node application using PM2 manager:
+
+=========================================
+RUN COMMAND
+=========================================
+pm2 start npm --name "your-app-name" -- start
+-----------------------------------------
+EXAMPLE
+-----------------------------------------
+pm2 start npm --name "AREAX_CORE_API" -- start
+=========================================
+RUN COMMAND: CLUSTER
+=========================================
+pm2 start npm --name "your-app-name" -- start -i 2
+-----------------------------------------
+pm2 start npm --name "AREAX_CORE_API" -- start -i 2
+-----------------------------------------
