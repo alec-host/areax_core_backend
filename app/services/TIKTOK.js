@@ -71,10 +71,10 @@ module.exports.getUserTikTokProfile = async(accessToken) => {
     }
 };
 
-module.exports.refreshAccessToken = async(refleshToken) => {
+module.exports.refreshAccessToken = async(refreshToken) => {
    try{
       const tokenUrl = 'https://open.tiktokapis.com/v2/oauth/token/';
-      const requestBody = qs.stringify({
+      const requestBody = querystring.stringify({
          client_key: TIKTOK_CLIENT_KEY,
          client_secret: TIKTOK_CLIENT_SECRET,
          grant_type: 'refresh_token',

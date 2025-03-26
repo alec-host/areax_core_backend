@@ -16,7 +16,7 @@ module.exports.GenerateTikTokAccessToken = async(req,res) => {
 	  return res.status(500).send({success: false, error: true, message: 'Access denied. Please try again later.'});
       }	  
       if(!code){
-          return res.status(400).send({success: false, error: true, message: 'Authorization code missing. Please link your Instagram account.'});
+          return res.status(400).send({success: false, error: true, message: 'Authorization code missing. Please link your TikTok account.'});
       }  
       if(!state){
           return res.status(400).send({success: false, error: true, message: 'State value missing.'});

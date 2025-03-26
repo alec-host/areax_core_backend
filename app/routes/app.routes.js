@@ -47,6 +47,7 @@ const tiktokAuthCallbackController = require('../controllers/tiktok/tiktok.acces
 const getTikTokTokenController = require('../controllers/tiktok/tiktok.get.token.controller');
 const getTikTokProfileController = require('../controllers/tiktok/tiktok.profile.controller');
 const tiktokRevokeController = require('../controllers/tiktok/tiktok.revoke.controller');
+const tiktokTokenExistController = require('../controllers/tiktok/tiktok.user.token.exist.controller');
 const walletDepositController = require('../controllers/wallet/handle.wallet.deposit.controller');
 const walletWithdrawController = require('../controllers/wallet/handle.wallet.withdrawal.controller');
 const updateUserLocationController = require('../controllers/profile/update.user.location.controller');
@@ -459,7 +460,24 @@ module.exports = async(app) => {
      * Method: GET
      * @@reference_number
     */	
-    router.get('/tiktokToken',getTikTokTokenController.GetTikTokToken);	
+    router.get('/tiktokToken',getTikTokTokenController.GetTikTokToken);
+    /**
+     * Path: /api/v1/revoke/tiktok:
+     * Method: POST
+     * @@email
+     * @@reference_number
+     * Bearer Token: required
+     * Description: Revoke access to Tiktok via App.
+     */
+    router.post('/revoke/tiktok',auth,requestEmailOtpValidator,tiktokRevokeController.TiktokRevoke);
+    /**
+     * /api/v1/tiktokTokenExist:
+     * Method: POST:
+     * @@email
+     * @@reference_number
+     * Description: return tiktok token status i.e. status 0 or 1.
+    */
+    router.post('/tiktokTokenExist',auth,requestEmailOtpValidator,tiktokTokenExistController.TiktokTokenExist);	
     /**
      * Method: POST
      * @@/api/v1/depositPoints:

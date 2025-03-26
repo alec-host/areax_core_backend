@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const { mongoDb } = require("../../../db/mongo.db");
 const { TikTokTokenModel } = require("../../../mongodb.models");
 
-module.exports.getTikTikAccessTokenByReferenceNumber = async(reference_number) => {
+module.exports.getTikTokTokenByReferenceNumber = async(reference_number) => {
     try{
        const connection = await mongoDb();
        if(connection){

@@ -14,21 +14,20 @@ exports.TiktokRevoke = async(req, res) => {
         if(email_found > 0){
             const reference_number_found = await findUserCountByReferenceNumber(reference_number);
             if(reference_number_found > 0){
-                const payload = { reference_number };
-                const response_1 = await deleteTiktokUserToken(payload);
-		const response_2 = await deleteTiktokProfileData(payload);    
+                const response_1 = await deleteTiktokUserToken(reference_number);
+		const response_2 = await deleteTiktokProfileData(reference_number); 
                 if(response_1 && response_2){	
                     const messageMq = {
                         channel_name: 'activity_log',
                         email: email,
                         reference_number: reference_number,
-                        activity_name: `REVOKE TIKTOK ACCESS: This was successful`
+                        activity_name: `REVOKE TIKTOK ACCESS: Successful`
                     };
                     await sendMessageToQueue(MEMORY_QUEUE_NAME,JSON.stringify(messageMq));
                     res.status(200).json({
                         success: true,
                         error: false,
-                        message: 'TikTok access has been Revoked.'
+                        message: 'TikTok Access has been Revoked.'
                     });
                 }else{
                     const messageMq = {
