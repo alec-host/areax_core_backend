@@ -46,6 +46,7 @@ const tiktokAuthController = require('../controllers/tiktok/tiktok.authorize.con
 const tiktokAuthCallbackController = require('../controllers/tiktok/tiktok.access.token.controller');
 const getTikTokTokenController = require('../controllers/tiktok/tiktok.get.token.controller');
 const getTikTokProfileController = require('../controllers/tiktok/tiktok.profile.controller');
+const tiktokRevokeController = require('../controllers/tiktok/tiktok.revoke.controller');
 const walletDepositController = require('../controllers/wallet/handle.wallet.deposit.controller');
 const walletWithdrawController = require('../controllers/wallet/handle.wallet.withdrawal.controller');
 const updateUserLocationController = require('../controllers/profile/update.user.location.controller');

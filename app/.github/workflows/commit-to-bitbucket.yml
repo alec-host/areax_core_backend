@@ -3,7 +3,7 @@ name: Push to Bitbucket
 on:
   push:
     branches:
-      - main  # or the branch you want to trigger the action
+      - master  # or the branch you want to trigger the action
 
 jobs:
   push-to-bitbucket:
