@@ -48,6 +48,7 @@ const getTikTokTokenController = require('../controllers/tiktok/tiktok.get.token
 const getTikTokProfileController = require('../controllers/tiktok/tiktok.profile.controller');
 const tiktokRevokeController = require('../controllers/tiktok/tiktok.revoke.controller');
 const tiktokTokenExistController = require('../controllers/tiktok/tiktok.user.token.exist.controller');
+const retrieveTiktokMediaRecordController = require('../controllers/tiktok/tiktok.get.media.record.controller');
 const walletDepositController = require('../controllers/wallet/handle.wallet.deposit.controller');
 const walletWithdrawController = require('../controllers/wallet/handle.wallet.withdrawal.controller');
 const updateUserLocationController = require('../controllers/profile/update.user.location.controller');
@@ -470,6 +471,14 @@ module.exports = async(app) => {
      * Description: Revoke access to Tiktok via App.
      */
     router.post('/revoke/tiktok',auth,requestEmailOtpValidator,tiktokRevokeController.TiktokRevoke);
+    /**
+     * /api/v1/tiktokMediaRecord:
+     * Method: GET
+     * @@email
+     * @@reference_number:
+     * Description: return instagram media record.
+    */
+    router.get('/tiktokMediaRecord',auth,retrieveTiktokMediaRecordController.RetrieveTiktokMediaRecords);	
     /**
      * /api/v1/tiktokTokenExist:
      * Method: POST:

@@ -5,6 +5,8 @@ const mediaSchema = new mongoose.Schema({
   user_id: {type: String, required: false},
   publish_id: { type: String, required: true },
   upload_url: { type: String, required: true },
+  title: { type: String, required: false},	
+  caption: { type: String, required: false },
   like_count: { type: Number, default: 0 },
   comments_count: { type: Number, default: 0 },
   created_at: { type: Date, default: Date.now },

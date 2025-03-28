@@ -1,6 +1,6 @@
 const { validationResult } = require("express-validator");
 const { findUserCountByReferenceNumber } = require("../user/find.user.count.by.reference.no");
-const { getTikTikAccessTokenByReferenceNumber } = require("../user/tiktok/get.mongo.tiktok.token");
+const { getTikTokAccessTokenByReferenceNumber } = require("../user/tiktok/get.mongo.tiktok.token");
 
 module.exports.GetTikTokToken = async(req,res) => {
   const { reference_number } = req.query;
@@ -8,7 +8,7 @@ module.exports.GetTikTokToken = async(req,res) => {
   if(errors.isEmpty()){
       const reference_number_found = await findUserCountByReferenceNumber(reference_number);
       if(reference_number_found > 0){
-          const data = await getTikTikAccessTokenByReferenceNumber(reference_number);
+          const data = await getTikTokAccessTokenByReferenceNumber(reference_number);
           if(data){
               res.status(200).json({
                   success: true,
