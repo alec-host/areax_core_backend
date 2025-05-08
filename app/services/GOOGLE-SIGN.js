@@ -2,6 +2,9 @@ const { OAuth2Client } = require("google-auth-library");
 const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_ID_ANDROID, GOOGLE_CLIENT_ID_APPLE, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI } = require("../constants/app_constants");
 
 module.exports.confirmGoogleToken = async(idToken) => {
+    console.log('CLIENT _ID', GOOGLE_CLIENT_ID);
+    console.log('ANDROID_CLIENT _ID', GOOGLE_CLIENT_ID_ANDROID);	
+    console.log('IOS_CLIENT _ID', GOOGLE_CLIENT_ID_APPLE);	
     try{
        const audience = [
 	   GOOGLE_CLIENT_ID,    

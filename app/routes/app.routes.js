@@ -476,7 +476,7 @@ module.exports = async(app) => {
      * Method: GET
      * @@email
      * @@reference_number:
-     * Description: return instagram media record.
+     * Description: return tiktok media record.
     */
     router.get('/tiktokMediaRecord',auth,retrieveTiktokMediaRecordController.RetrieveTiktokMediaRecords);	
     /**

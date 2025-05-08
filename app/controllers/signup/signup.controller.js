@@ -130,7 +130,7 @@ exports.UserSignUp = async(req,res) => {
                     res.status(400).json({
                         success: false,
                         error: true,
-                        message: e?.response || e?.response?.message || "Something wrong has happpened."
+                        message: e?.response || e?.message || e?.response?.message || "Something wrong has happpened."
                     });
                 } 
             }

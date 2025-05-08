@@ -24,6 +24,7 @@ exports.GoogleUserSignIn = async(req,res) => {
     const errors = validationResult(req);
     if(errors.isEmpty()){
         try{
+	    console.log('GEN ID TOKEN', idToken);	
             const payload = await confirmGoogleToken(idToken);
             if(payload){
                 const google_user_id = payload['sub'];

@@ -4,7 +4,7 @@ const { getUserTikTokProfile,refreshAccessToken } = require("../../services/TIKT
 
 const { findUserCountByEmail } = require("../user/find.user.count.by.email");
 const { findUserCountByReferenceNumber } = require("../user/find.user.count.by.reference.no");
-const { getTikTokTokenByReferenceNumber } = require("../user/tiktok/get.mongo.tiktok.token");
+const { getTikTokAccessTokenByReferenceNumber } = require("../user/tiktok/get.mongo.tiktok.token");
 
 const { tiktokTokenExistByReferenceNo } = require("../user/tiktok/get.mongo.tiktok.token.exist.by.reference.no");
 
@@ -31,7 +31,7 @@ exports.TiktokTokenExist = async(req, res) => {
             if(1===1){
                 const dateDifferenceInDays = await calculateTiktokTokenExpiry(reference_number); 
                 if(dateDifferenceInDays){
-		    const tiktokTokens = await getTikTokTokenByReferenceNumber(reference_number); 	
+		    const tiktokTokens = await getTikTokAccessTokenByReferenceNumber(reference_number); 	
                     if(tiktokTokens){
                         if(dateDifferenceInDays >= 1 || dateDifferenceInDays <= 149){
 			    const { access_token, refresh_token } = tiktokTokens;

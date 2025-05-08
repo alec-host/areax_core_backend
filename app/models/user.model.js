@@ -41,8 +41,8 @@ module.exports = (sequelize, Sequelize) => {
          type: DataTypes.STRING(65),
          allowNull: true
       },
-      access_token: DataTypes.STRING(255),
-      refresh_token: DataTypes.STRING(255),
+      access_token: DataTypes.STRING(300),
+      refresh_token: DataTypes.STRING(300),
       token_expiry: DataTypes.DATE,
       password: DataTypes.STRING(65),
       token_id: DataTypes.STRING(70),
