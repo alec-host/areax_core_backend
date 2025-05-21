@@ -1,0 +1,26 @@
+{
+  "dependencies": {
+    "amqplib": "^0.10.8",
+    "aws-sdk": "^2.1692.0",
+    "axios": "^1.9.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-validator": "^7.2.1",
+    "firebase-admin": "^13.4.0",
+    "google-auth-library": "^9.15.1",
+    "image-size": "^2.0.2",
+    "jsonwebtoken": "^9.0.2",
+    "libphonenumber-js": "^1.12.8",
+    "mongoose": "^8.15.0",
+    "mongoose-paginate-v2": "^1.9.0",
+    "morgan": "^1.10.0",
+    "multer": "^2.0.0",
+    "mysql2": "^3.14.1",
+    "nodemailer": "^7.0.3",
+    "otp-generator": "^4.0.1",
+    "redis": "^5.1.0",
+    "sequelize": "^6.37.7"
+  }
+}
