@@ -1,10 +1,10 @@
-const  promisify = require("util");
+
 const { connectToRedis } = require("../cache/redis");
 
-const incrAsync = promisify(connectToRedis.incr).bind(connectToRedis);
-const expireAsync = promisify(connectToRedis.expire).bind(connectToRedis);
+const incrAsync = async(key) => await connectToRedis.incr(connectToRedis);
+const expireAsync = async(key,time) => await connectToRedis.expire(key,time);
 
-const rateLimit = (maxRequests, windowMs) => async (req, res, next) => {
+module.exports.rateLimit = (maxRequests, windowMs) => async (req, res, next) => {
   const ip = req.ip;
   const key = `ratelimit:${ip}:${req.path}`;
   

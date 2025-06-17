@@ -13,7 +13,7 @@ module.exports.calculateInstagramTokenExpiry = async(reference_number) => {
 		if(createdAt){    
                    const currentDate = Date.now();
                    const differenceInDays = Math.floor((currentDate - createdAt) / (24 * 60 * 60 * 1000));
-		   console.log('DATE DIFF IN DAYS', differenceInDays); 
+		   console.log('DATE DIFF IN DAYS ---------->', differenceInDays); 
                    return differenceInDays;
 		}else{
                    return null;

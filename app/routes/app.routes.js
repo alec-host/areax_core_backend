@@ -1,6 +1,8 @@
 const auth = require("../middleware/auth");
 const basicAuth = require("../middleware/basic.auth");
-const uploadFile = require('../middleware/upload.storage');
+const uploadFile = require("../middleware/upload.storage");
+const rateLimit = require("../middleware/rate.limit");
+const { allowLocalTraffic } = require("../middleware/allow.local.traffic");
 
 const signUpController = require("../controllers/signup/signup.controller");
 const googleAuthController = require("../controllers/google-signin/google.auth.controller");
@@ -16,6 +18,7 @@ const addPhoneController = require("../controllers/otp/phone/add.phone.controlle
 const verifyPhoneController = require("../controllers/otp/phone/verify.phone.controller");
 const modifyUserProfileController = require("../controllers/profile/update.user.profile");
 const updateUserProfilePictureController = require('../controllers/profile/upload.user.profile.picture');
+const updateGaurdianPictureController = require('../controllers/profile/upload.user.guardian.picture.js');
 const modifyUserTokenIdController = require("../controllers/profile/update.user.token.id");
 const getProfileController = require('../controllers/profile/get.user.profile');
 const getTokenIdController = require('../controllers/profile/get.user.token.id');
@@ -64,6 +67,7 @@ const subscriptionPlanController = require('../controllers/tiers/add.selected.su
 const getSubscriptionPlanController = require('../controllers/tiers/get.subscription.tier.details.controller');
 const getSubscriptionPlanListController = require('../controllers/tiers/get.subscription.tiers.list.controller');
 const readMqMessageController = require('../controllers/mq/read.mq.message.controller');
+const changeProfileStatusController = require('../controllers/profile/change.profile.status');
 
 const error = require("./error/error.routes");
 const { 
@@ -73,7 +77,7 @@ const {
 	  instagramAuthCallbackValidator, tokenIdValidator, s3BucketValidator, blockchainWalletValidator, 
 	  formDataValidator, forgetPasswordValidator, passwordChangeValidator, getIgUserIdValidator, tiktokAuthValidator,
 	  getUsersLocationValidator, deleteTierValidator, getTierValidator, createTierValidator, addSubscriptonPlanValidator, 
-	  getSubscriptionPlanValidator 
+	  getSubscriptionPlanValidator, formDataGaurdianValidator 
       } = require("../validation/common.validation");
 
 /**
@@ -122,7 +126,7 @@ module.exports = async(app) => {
      * @@password
      * Description: Maanual sign in.            
     */
-    router.post('/signIn',signInValidator,signInController.SignIn);
+    router.post('/signIn',/*rateLimit(5, 5*60*1000),*/signInValidator,signInController.SignIn);
     /**
      * Paths: /api/v1/signOut:
      * Method: POST
@@ -231,7 +235,17 @@ module.exports = async(app) => {
      * Bearer Token: required
      * Description: User profile picture has been uploaded.
     */
-    router.post('/uploadUserProfilePicture',uploadFile.single('image'),auth,formDataValidator,updateUserProfilePictureController.UploadProfilePicture);	
+    router.post('/uploadUserProfilePicture',uploadFile.single('image'),auth,formDataValidator,updateUserProfilePictureController.UploadProfilePicture);
+    /**
+     * Path: /api/v1/uploadSpiritAnimalPicture:
+     * Method; POST
+     * @@email
+     * @@reference_number
+     * @@gaurdian_name
+     * Bearer Token: required
+     * Description: Spirit animal picture has been uploaded.
+    */
+    router.post('/uploadSpiritAnimalPicture',uploadFile.single('image'),auth,formDataGaurdianValidator,updateGaurdianPictureController.UploadGaurdianPicture);	
     /**
      * Path: /api/v1/addBlockchainTokenId:
      * Method: POST
@@ -602,6 +616,13 @@ module.exports = async(app) => {
      * @@description: Read a message from RabbitMQ.
     */
     router.get('/getMqMessage',auth,getProfileValidator,readMqMessageController.ReadMQMessage);
+    /**
+     * Method: POST
+     * @@/api/v1/privacyStatus:
+     * @@basic auth.changeProfileStatusIn
+     * @@description: Change user profile status.
+    */
+    router.post('/privacyStatus',/*allowLocalTraffic('127.0.0.1','9124'),basicAuth*/changeProfileStatusController.ChangeProfileStatus);	
     	
     app.use("/api/v1",router);
     app.use(error.errorHandler);

@@ -4,7 +4,7 @@ const { findUserCountByReferenceNumber } = require("../user/find.user.count.by.r
 const { deleteTiktokUserToken } = require("../user/tiktok/delete.mongo.tiktok.token");
 const { deleteTiktokProfileData } = require("../user/tiktok/delete.mongo.tiktok.profile.data");
 const { sendMessageToQueue } = require("../../services/RABBIT-MQ");
-const { MEMORY_QUEUE_NAME } = require("../../constants/app_constants");
+const { MEMORY_QUEUE_NAME,RABBITMQ_QUEUE_LOGS } = require("../../constants/app_constants");
 
 exports.TiktokRevoke = async(req, res) => {
     const { email, reference_number } = req.body;
@@ -23,7 +23,7 @@ exports.TiktokRevoke = async(req, res) => {
                         reference_number: reference_number,
                         activity_name: `REVOKE TIKTOK ACCESS: Successful`
                     };
-                    await sendMessageToQueue(MEMORY_QUEUE_NAME,JSON.stringify(messageMq));
+                    await sendMessageToQueue(RABBITMQ_QUEUE_LOGS,JSON.stringify(messageMq));
                     res.status(200).json({
                         success: true,
                         error: false,
@@ -37,7 +37,7 @@ exports.TiktokRevoke = async(req, res) => {
                         error_code: 400,
                         error_message: `ERROR: Attempting to Revoke TikTok Access.`
                     };
-                    await sendMessageToQueue(MEMORY_QUEUE_NAME,JSON.stringify(messageMq));
+                    await sendMessageToQueue(RABBITMQ_QUEUE_LOGS,JSON.stringify(messageMq));
                     res.status(400).json({
                         success: false,
                         error: true,

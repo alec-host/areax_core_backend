@@ -6,43 +6,42 @@ const { copyUserRecordByReferenceNo } = require("../user/copy.user.record.by.ref
 
 module.exports.PurgeUser = async(req,res) => {
     const { email, reference_number } = req.body;
-
     const error = validationResult(req);
-    if(error.isEmpty()){
-        const email_found = await findUserCountByEmail(email);
-        if(email_found > 0){
-            const reference_number_found = await findUserCountByReferenceNumber(reference_number);
-            if(reference_number_found > 0){
-		const response = copyUserRecordByReferenceNo(reference_number);
-		if(response){ 
-		    await deleteUserByReferenceNo(reference_number);	
-                    res.status(200).json({
-                        success: true,
-                        error: false,
-                        message: 'User account has been deleted.'
-                    });
-		}else{
-                    res.status(400).json({
-                        success: false,
-                        error: true,
-                        message: 'Account deletion has failed.'
-                    }); 
-		}
-            }else{
-                res.status(404).json({
-                    success: false,
-                    error: true,
-                    message: 'Email not found.'
-                });                
-            }
-        }else{
-            res.status(404).json({
-                success: false,
-                error: true,
-                message: 'Email not found.'
-            });
-        }
+    if(!error.isEmpty()){
+        res.status(422).json({success: false, error: true, message: errors.array()});
+	return;    
+    }
+    const email_found = await findUserCountByEmail(email);
+    if(email_found === 0){
+        res.status(404).json({
+            success: false,
+            error: true,
+            message: 'Email not found.'
+        });	    
+	return;    
+    }
+    const reference_number_found = await findUserCountByReferenceNumber(reference_number);
+    if(reference_number_found === 0){
+        res.status(404).json({
+            success: false,
+            error: true,
+            message: 'Email not found.'
+        });
+	return;
+    }
+    const response = copyUserRecordByReferenceNo(reference_number);
+    if(response){ 
+        await deleteUserByReferenceNo(reference_number);	
+        res.status(200).json({
+            success: true,
+            error: false,
+            message: 'User account has been deleted.'
+        });
     }else{
-        res.status(422).json({errors: errors.array()});
+        res.status(400).json({
+            success: false,
+            error: true,
+            message: 'Account deletion has failed.'
+        }); 
     }
 };

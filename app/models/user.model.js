@@ -25,10 +25,36 @@ module.exports = (sequelize, Sequelize) => {
          type: DataTypes.STRING(20),
          allowNull: true
       },	   
-      username: DataTypes.STRING(255),
-      display_name: DataTypes.STRING(255),
-      profile_picture_url: DataTypes.STRING(255),
-      caption: DataTypes.STRING(160),
+      username: {
+	  type: DataTypes.STRING(255),
+	  allowNull: true    
+      },
+      display_name: {
+	  type: DataTypes.STRING(255),
+	  allowNull: true    
+      },      
+      profile_picture_url: {
+	 type: DataTypes.STRING(2048),
+         allowNull: true,
+         validate: {
+             isUrl: {
+                msg: "Invalid URL format."
+             },
+         }	      
+      },
+      caption: {
+	 type: DataTypes.STRING(160),
+         allowNull: true
+      },
+      guardian_picture_url: {
+	 type: DataTypes.STRING(2048),
+	 allowNull: true,     
+         validate: {
+             isUrl: {
+                msg: "Invalid URL format."
+             },
+         }	      
+      },	   
       tier_reference_number: {
          type: DataTypes.STRING(65),
          allowNull: true
@@ -47,6 +73,11 @@ module.exports = (sequelize, Sequelize) => {
       password: DataTypes.STRING(65),
       token_id: DataTypes.STRING(70),
       hashed_token_id: DataTypes.STRING(70),
+      privacy_status: {
+        type: DataTypes.ENUM("public", "friends_only", "anonymous"),
+        defaultValue: "public",
+        allowNull: false
+      },	   
       created_at: {
          type: DataTypes.DATE,
          defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
@@ -76,7 +107,7 @@ module.exports = (sequelize, Sequelize) => {
          indexes: [{
             name: 'idx_areax_users',
             unique: false,
-            fields : ['reference_number','phone','email','email_verified','phone_verified','is_online','is_deleted'] 
+            fields : ['reference_number','phone','email','privacy_status','email_verified','phone_verified','is_online','is_deleted'] 
         }],
          // Define table options
          timestamps: false,

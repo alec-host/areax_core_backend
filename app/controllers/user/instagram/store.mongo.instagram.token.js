@@ -6,15 +6,13 @@ module.exports.saveInstagramUserToken = async(payload) => {
     try{
         const newInstagramToken = new InstagramTokenModel(payload);
         const connection = await mongoDb();
-        if(connection){	
-            const savedToken = await newInstagramToken.save();
-            return savedToken;
-        }else{
-            console.error('Connection to db has failed');
-            return null;
-        }
+        if(!connection){
+           return null;		
+	}
+        const savedToken = await newInstagramToken.save();
+        return savedToken;
     }catch(err){
-        console.error('Error: failed to insert or update. ',err);
+        console.error('Error: failed to insert or update. ',err.message);
         return null;
     }finally{
         mongoose.connection.close();
@@ -26,17 +24,11 @@ module.exports.updateInstagramUserToken = async(reference_number,payload) => {
         const filter = { reference_number: reference_number };
         const update = { $set: payload}
         const connection = await mongoDb();
-        if(connection){
-            const result = await InstagramTokenModel.updateOne(filter, update);
-            if(result.nModified === 1){
-                return true;
-            }else{
-                return false;
-            }
-        }else{
-            console.log('Connection to db has failed');
-            return null;
-        }
+        if(!connection){
+           return null;		
+	}
+        const result = await InstagramTokenModel.updateOne(filter, update, { upsert: true });
+        return result.modifiedCount === 1 || result.upsertedCount === 1;
     }catch(err){
         console.error('Error: failed to insert or update. ',err);
         return null;

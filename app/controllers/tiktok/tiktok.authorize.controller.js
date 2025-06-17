@@ -5,7 +5,7 @@ const { tiktokApiLogin } = require("../../services/TIKTOK");
 const { storeUserInstagramActivityLog } = require("../user/instagram/store.user.instagram.activity.log");
 const { generateRandomHash } = require("../../utils/generate.random.hash");
 const { sendMessageToQueue } = require("../../services/RABBIT-MQ");
-const { MEMORY_QUEUE_NAME } = require("../../constants/app_constants");
+const { MEMORY_QUEUE_NAME,RABBITMQ_QUEUE_LOGS } = require("../../constants/app_constants");
 
 module.exports.TiktokAuthorize = async(req,res) => {	
     const { email,reference_number,client_type } = req.body;
@@ -45,7 +45,7 @@ module.exports.TiktokAuthorize = async(req,res) => {
 			error_status: 400,    
 		        error_message: `ERROR: ${response[1]}`	   
 		    };	
-		    await sendMessageToQueue(MEMORY_QUEUE_NAME,JSON.stringify(payload));	
+		    await sendMessageToQueue(RABBITMQ_QUEUE_LOGS,JSON.stringify(payload));	
                     res.status(400).json({
                         success: false,
                         error: true,

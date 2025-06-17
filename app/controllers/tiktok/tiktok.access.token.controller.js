@@ -6,7 +6,7 @@ const { saveTikTokUserProfile } = require("../user/tiktok/store.mongo.tiktok.pro
 const { getUserEmailByReferenceNumber } = require("../user/get.user.email.by.reference.no");
 const { generateAccessToken, getUserTikTokProfile } = require("../../services/TIKTOK");
 const { sendMessageToQueue } = require("../../services/RABBIT-MQ");
-const { MEMORY_QUEUE_NAME } = require("../../constants/app_constants");
+const { MEMORY_QUEUE_NAME,RABBITMQ_QUEUE_LOGS } = require("../../constants/app_constants");
 
 module.exports.GenerateTikTokAccessToken = async(req,res) => {
   const { code,state,error } = req.body;
@@ -52,7 +52,7 @@ module.exports.GenerateTikTokAccessToken = async(req,res) => {
               reference_number: reference_number,
               activity_name: 'TikTok login was successful.'      
 	  };
-	  await sendMessageToQueue(MEMORY_QUEUE_NAME,JSON.stringify(payload2));	  
+	  await sendMessageToQueue(RABBITMQ_QUEUE_LOGS,JSON.stringify(payload2));	  
           res.status(200).json({
 	      success: true,
               error: false,
@@ -68,7 +68,7 @@ module.exports.GenerateTikTokAccessToken = async(req,res) => {
 	      error_status: 400,	  
 	      error_message: `ERROR: ${response[1]}` 	  
 	  };
-	  await sendMessageToQueue(MEMORY_QUEUE_NAME,JSON.stringify(payload2));      
+	  await sendMessageToQueue(RABBITMQ_QUEUE_LOGS,JSON.stringify(payload2));      
           res.status(400).json({
               success: false,
               error: true,

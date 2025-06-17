@@ -6,13 +6,11 @@ module.exports.saveInstagramUserData = async(payload) => {
     try{
         const newInstagramUserData = new InstagramUserDataModel(payload);
         const connection = await mongoDb();
-        if(connection){	
-            const savedUserData = await newInstagramUserData.save();   		
-            return savedUserData;
-        }else{
-            console.log('Connection to db has failed');
-            return null;
-        }
+        if(!connection){
+            return null;		
+	}
+        const savedUserData = await newInstagramUserData.save();   		
+        return savedUserData;
     }catch(err){
         console.error('Error: failed to insert or update. ',err);
         return null;
@@ -26,16 +24,11 @@ module.exports.modifyInstagramUserData = async(reference_number,payload) => {
         const filter = { reference_number: reference_number };
         const update = { $set: payload };
         const connection = await mongoDb();
-        if(connection){
-            const result = await InstagramUserDataModel.updateOne(filter, update);
-            if(result.nModified === 1){
-                return true;
-            }else{
-                return false;
-            }
-        }else{
+        if(!connection){
             return null;
-        }
+	}
+        const result = await InstagramUserDataModel.updateOne(filter, update, { upsert: true });
+        return result.modifiedCount === 1 || result.upsertedCount === 1;
     }catch(err){
         console.error('Error: failed to insert or update. ',err);
         return null;

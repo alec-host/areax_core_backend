@@ -7,34 +7,34 @@ exports.ConfirmPhone = async(req,res) => {
         try{ 
             const decodedPhone = await verifyToken();
             const user_found = await findUserCountByPhone(decodedPhone);
-            if(user_found > 0){
-                if(decodedPhone){
-                    res.status(200).json({
-                        success: true,
-                        error: false,
-                        data: data,
-                        message: 'The phone number has been verified.'
-                    });
-                }else{
-                    res.status(400).json({
-                        success: false,
-                        error: true,
-                        message: 'Failed to confirm the phone number.'
-                    });
-                }
-            }else{
+            if(user_found === 0){
                 res.status(404).json({
                     success: false,
                     error: true,
                     message: 'Phone number not found.'
-                });               
-            }
+                });
+		return;
+	    }
+            if(!decodedPhone){
+               res.status(400).json({
+                   success: false,
+                   error: true,
+                   message: 'Failed to confirm the phone number.'
+               });		    
+	       return;	    
+	    }
+            res.status(200).json({
+                success: true,
+                error: false,
+                data: data,
+                message: 'The phone number has been verified.'
+            });
         }catch(e){
             if(e){
                 res.status(500).json({
                     success: false,
                     error: true,
-                    message: e?.response?.message || 'Something wrong has happened'
+                    message: e?.response?.message || e?.message || 'Something wrong has happened'
                 });
             }           
         }

@@ -1,7 +1,10 @@
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 
+//require("../sync-cache-service/sync.service");
 //const swaggerUi = require("swagger-ui-express");
 //const pathToSwaggerUi = require("swagger-ui-dist").absolutePath();
 //const openapiSpecification = require("../open-api/swagger.js.doc");
@@ -15,10 +18,20 @@ const { db, db2 } = require("../models");
 const PORT = APP_SERVER_PORT.toString().split(',')[0];
 console.log(APP_SERVER_PORT.toString(),' ',APP_SERVER_PORT.toString().split(',')[0]);
 
+app.use(helmet());
 app.use(cors());
-app.use(express.json());
 
-db.sequelize.sync()
+const limiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later'
+});
+app.use("/api/v1/", limiter);
+
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
+db.sequelize.sync({/* force: false, alter: true */})
   .then(() => {
    console.log("Synced db.");
 })

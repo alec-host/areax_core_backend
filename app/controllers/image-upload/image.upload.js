@@ -21,7 +21,7 @@ module.exports.UploadImage = async(req, res) => {
 	
                 if(reference_number_found > 0){
 		    const uploadImageURL = [];	
-		    const validFormats = ['.png','.jpg','jpeg','.webp'];	
+		    const validFormats = ['.png','.jpg','jpeg','.webp','.gif','.mp4','.3gp','.mov','.avi','.wmv','.mkv'];	
 
                     if(!req.files || req.files.length === 0){
                         return res.status(400).json({ success: false, error: true, message: 'Missing file(s).' });
@@ -41,7 +41,7 @@ module.exports.UploadImage = async(req, res) => {
 			    
                        const ext = path.extname(file.originalname).toLowerCase();
                        if(!validFormats.includes(ext)) {
-                           res.status(400).json({ success: false, error: true, message: 'Invalid image format. Only .jpg images are accepted.'});
+                           res.status(400).json({ success: false, error: true, message: 'Invalid format. Only image & vidoe format are accepted.'});
                            return;
                        }
                      
@@ -60,7 +60,7 @@ module.exports.UploadImage = async(req, res) => {
                         success: true,
                         error: false,
                         image_url: uploadImageURL,
-                        message: 'Image uploaded successfully.'
+                        message: 'File uploaded successfully.'
                     });			
                 }else{
                     res.status(404).json({

@@ -91,8 +91,10 @@ module.exports.refreshLongLivedAccessToken = async(accessToken) => {
         const newLongLivedToken = response.data.access_token;
         const tokenExpiryTime = Date.now() + response.data.expires_in * 1000;
         console.log('Refreshed Long-lived Access Token:', newLongLivedToken,'  ',tokenExpiryTime);
+	return newLongLivedToken;    
     }catch(error) {
         console.error('Error refreshing long-lived access token:', error.response.data);
+	return null;
     }
 };
 

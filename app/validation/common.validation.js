@@ -126,6 +126,13 @@ const formDataValidator = [
     check('reference_number', 'Reference number must be provided').not().isEmpty(),
 ];
 
+const formDataGaurdianValidator = [
+    check('email', 'Email cannot be Empty').not().isEmpty(),
+    check('email', 'Invalid email').isEmail(),
+    check('reference_number', 'Reference number must be provided').not().isEmpty(),
+    check('guardian_name', 'Guardian name must be provided').not().isEmpty(),	
+];
+
 const tokenIdValidator = [
     check('email', 'Email cannot be Empty').not().isEmpty(),
     check('email', 'Invalid email').isEmail(), 
@@ -246,5 +253,6 @@ module.exports = {
     getTierValidator,
     createTierValidator,
     addSubscriptonPlanValidator,
-    getSubscriptionPlanValidator	
+    getSubscriptionPlanValidator,
+    formDataGaurdianValidator	
 };

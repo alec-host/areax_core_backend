@@ -19,122 +19,126 @@ const { addWalletBalanceByReferenceNumber } = require('../user/add.wallet.amount
 const { getSubscriptionTierByName,addSubscriptionPlanByReferenceNumber} = require('../tiers/admin.create.tiers');
 
 exports.UserSignUp = async(req,res) => {
-        const { username, email, password } = req.body;
-        const errors = validationResult(req);
-        if(errors.isEmpty()) {
-            try{
-                const isEmailValid = await validateEmail(email);
-                if(isEmailValid){
+   const { username, email, password } = req.body;
+   const errors = validationResult(req);
+   if(!errors.isEmpty()){
+      return res.status(422).json({ success: false, error: true, message: errors.array() });   
+   }
+   try{
+      const isEmailValid = await validateEmail(email);
+      if(!isEmailValid){
+         res.status(400).json({
+             success: false,
+             error: true,
+             message: 'Invalid email.'
+         });
+	 return;
+      }
 
-                    const google_user_id = 0;
-                    const reference_number = USER_UID_LEAD_PREFIX + uuidv4();
-                    const profile_picture_url = 'https://';
-                    const hashedPassword = await encrypt(password);	
-                    const access_token = accessToken({ email:email,reference_number:reference_number });
-                    const refresh_token = refreshToken({ email:email,reference_number:reference_number });
-                    const reference_number_in = reference_number;
-                    const found_email = await findUserCountByEmail(email);
-                    if(found_email === 0){
-                        const otpCode = generateRandomOtp();
-                        const response = await sendEmailOtp(email,otpCode);
-                        if(response[0]){
-                            await saveMailOtp({phone:0,email:email,message:response[2]});
-		            const newUser = { reference_number,google_user_id,username,email,profile_picture_url,access_token,refresh_token,password:hashedPassword };		
-                            const resp = await createUser(newUser);
-                            if(resp[0]){
-				const walletDetails = await postPayloadWithJsonPayload(`${APPLICATION_BASE_URL}/blockchain/api/v1/userWalletDetail`,{ user_id: email });    
-                                await getUserProfileByEmail(email, async profileCallback => {
-                                    const payload = {
-                                        channel_name: 'activity_log',
-                                        email: email,
-                                        reference_number: reference_number,
-                                        activity_name: `SIGN UP: ${resp[1]} ${response[1]}`
-                                    };
-                                    await sendMessageToQueue(MEMORY_QUEUE_NAME,JSON.stringify(payload));
-					
-                                    await getSubscriptionTierByName(DEFAULT_SUBSCRIPTION_PLAN, async callBack => {
-	                                if(callBack && callBack.length > 0){
-		                             const { reference_number, name, monthly_cost, yearly_cost, entry, credits_per_action } = callBack[0];
-					     const regex = /\{(\d+)\}/;
-					     const creditValue = entry.match(regex);
-                                             if(creditValue){
-						const currentDate = new Date();
-						const expired_at = addDays(currentDate, Number(SUBSCRIPTION_VALIDITY_IN_DAYS));     
-					        const walletPayload = { amount:0,credit_points_bought:creditValue[1],plan_name:name,tier_reference_number:reference_number,subscription_plan:'d',expired_at };
-						const walletResp = await addWalletBalanceByReferenceNumber(reference_number_in,walletPayload);
-						const userPayload = { tier_reference_number:reference_number };
-						const planResp = await addSubscriptionPlanByReferenceNumber(reference_number_in,userPayload);     
-					     }
-	                                 }
-                                    });
+      const found_email = await findUserCountByEmail(email);
+      if(found_email > 0){
+         res.status(400).json({
+             success: false,
+             error: true,
+             message: 'Email already exists'
+         });
+         return;
+      }
+ 	   
+      const google_user_id = 0;
+      const reference_number = USER_UID_LEAD_PREFIX + uuidv4();
+      const profile_picture_url = null;
+      const guardian_picture_url = null;	   
+      const hashedPassword = await encrypt(password);	
+      const access_token = accessToken({ email:email,reference_number:reference_number });
+      const refresh_token = refreshToken({ email:email,reference_number:reference_number });
+      const reference_number_in = reference_number;
+     	        	   
+      const otpCode = generateRandomOtp();
+      const response = await sendEmailOtp(email,otpCode);
+      if(!response[0]){
+         res.status(400).json({
+             success: false,
+             error: true,
+             message: response[1] || 'Invalid token'
+         });
+	 return;
+      }
+      await saveMailOtp({phone:0,email:email,message:response[2]});
+     
+      const newUser = { reference_number,google_user_id,username,email,profile_picture_url,guardian_picture_url,access_token,refresh_token,password:hashedPassword };	   
+      const resp = await createUser(newUser); 
+      if(!resp[0]){
+         res.status(400).json({
+             success: false,
+             error: true,
+             message: resp[1]
+         });
+	 return;
+      }
 
-		                    if(walletDetails[0]){			
-                                        res.status(201).json({
-                                            success: true,
-                                            error: false,
-                                            data: profileCallback,
-                                            access_token: access_token,
-                                            refresh_token: refresh_token,
-				            walletData: walletDetails[0], 		
-                                            message: resp[1]
-                                        });
-				    }else{
-                                        const payload = {
-                                            channel_name: 'error_log',
-                                            email: email,
-                                            reference_number: reference_number,
-                                            error_code: 400,
-                                            error_message: `ERROR BLOCKCHAIN WALLET CREATION HAS FAILED: ${walletDetails[1]}`
-                                        };
-                                        await sendMessageToQueue(MEMORY_QUEUE_NAME,JSON.stringify(payload));
-				        res.status(201).json({
-                                            success: true,
-                                            error: false,
-                                            data: profileCallback,
-                                            access_token: access_token,
-                                            refresh_token: refresh_token,
-                                            message: `${resp[1]} | Wallet API has failed: ${walletDetails[1]}`
-                                        });
-				    }
-                                });                                               
-                            }else{
-                                res.status(500).json({
-                                    success: false,
-                                    error: true,
-                                    message: resp[1]
-                                });
-                            }
-                        }else{
-                            res.status(400).json({
-                                success: false,
-                                error: true,
-                                message: response[1] || 'Invalid token'
-                            });
-                        }               
-                    }else{
-                        res.status(200).json({
-                            success: false,
-                            error: true,
-                            message: 'Email already exists'
-                        });
-                    }
-                }else{
-                    res.status(400).json({
-                        success: false,
-                        error: true,
-                        message: 'Invalid email.'
-                    });
-                } 
-            }catch(e){
-                if(e){
-                    res.status(400).json({
-                        success: false,
-                        error: true,
-                        message: e?.response || e?.message || e?.response?.message || "Something wrong has happpened."
-                    });
-                } 
-            }
-        }else{
-            res.status(422).json({ success: false, error: true, message: errors.array() });  
-        }
+      const walletDetails = await postPayloadWithJsonPayload(`${APPLICATION_BASE_URL}/blockchain/api/v1/userWalletDetail`,{ user_id: email });    
+      await getUserProfileByEmail(email, async profileCallback => {
+         const payload_1 = {
+            channel_name: 'activity_log',
+            email: email,
+            reference_number: reference_number,
+            activity_name: `SIGN UP: ${resp[1]} ${response[1]}`
+         };
+         await sendMessageToQueue(MEMORY_QUEUE_NAME,JSON.stringify(payload_1));
+         					
+         await getSubscriptionTierByName(DEFAULT_SUBSCRIPTION_PLAN, async callBack => {
+	    if(callBack && callBack.length > 0){
+	        const { reference_number, name, monthly_cost, yearly_cost, entry, credits_per_action } = callBack[0];
+		const regex = /\{(\d+)\}/;
+		const creditValue = entry.match(regex);
+                if(creditValue){
+		    const currentDate = new Date();
+		    const expired_at = addDays(currentDate, Number(SUBSCRIPTION_VALIDITY_IN_DAYS));     
+		    const walletPayload = { amount:0,credit_points_bought:creditValue[1],plan_name:name,tier_reference_number:reference_number,subscription_plan:'d',expired_at };
+		    const walletResp = await addWalletBalanceByReferenceNumber(reference_number_in,walletPayload);
+		    const userPayload = { tier_reference_number:reference_number };
+		    const planResp = await addSubscriptionPlanByReferenceNumber(reference_number_in,userPayload);    
+		}
+	    }
+         });
+	 
+         if(walletDetails[0]){			
+            res.status(201).json({
+                success: true,
+                error: false,
+                data: profileCallback,
+                access_token: access_token,
+                refresh_token: refresh_token,
+		walletData: walletDetails[0], 		
+                message: resp[1]
+            });
+            return;
+	 }
+         const payload_2 = {
+            channel_name: 'error_log',
+            email: email,
+            reference_number: reference_number,
+            error_code: 400,
+            error_message: `ERROR BLOCKCHAIN WALLET CREATION HAS FAILED: ${walletDetails[1]}`
+         };
+         await sendMessageToQueue(MEMORY_QUEUE_NAME,JSON.stringify(payload_2));
+	 res.status(201).json({
+             success: true,
+             error: false,
+             data: profileCallback,
+             access_token: access_token,
+             refresh_token: refresh_token,
+             message: `${resp[1]} | Wallet API has failed: ${walletDetails[1]}`
+         });	
+      }); 
+   }catch(e){
+       if(e){
+           res.status(400).json({
+               success: false,
+               error: true,
+               message: e?.response || e?.message || e?.response?.message || "Something wrong has happpened."
+           });
+       } 
+   } 
 };
