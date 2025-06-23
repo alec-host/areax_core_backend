@@ -622,7 +622,7 @@ module.exports = async(app) => {
      * @@basic auth.changeProfileStatusIn
      * @@description: Change user profile status.
     */
-    router.post('/privacyStatus',/*allowLocalTraffic('127.0.0.1','9124'),basicAuth*/changeProfileStatusController.ChangeProfileStatus);	
+    router.post('/privacyStatus',/*allowLocalTraffic('127.0.0.1','9124')*/basicAuth,changeProfileStatusController.ChangeProfileStatus);	
     	
     app.use("/api/v1",router);
     app.use(error.errorHandler);

@@ -30,7 +30,9 @@ module.exports.ChangeProfileStatus = async(req,res) => {
             });
 	    return;
 	}
-        await modifyUserByEmail(email,{ privacy_status });
+	console.log({ email, privacy_status });    
+        const response = await modifyUserByEmail({ email, privacy_status });
+	console.log('CCCCCCCCCCCCCCCCCCCCCCCCCCCc ',response);    
         await getUserProfileByEmail(email,callBack => {
             res.status(200).json({
                 success: true,
@@ -44,7 +46,7 @@ module.exports.ChangeProfileStatus = async(req,res) => {
             res.status(500).json({
                 success: false,
                 error: true,
-                message: e?.response?.message || 'Something wrong has happened'
+                message: e?.response?.message || e?.response?.data || e?.message || 'Something wrong has happened'
             });
         }
     }
