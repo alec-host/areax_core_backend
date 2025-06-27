@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET, JWT_REFRESH_SECRET } = require("../constants/app_constants");
 
-
+console.log( JWT_SECRET,'      ' ,JWT_REFRESH_SECRET);
 module.exports.accessToken = (data) => {
   //-.Dervin recommendation: Increase to 1 hour for better user experience:	
   const token = jwt.sign(data,JWT_SECRET,{expiresIn: '1h'});
@@ -9,7 +9,7 @@ module.exports.accessToken = (data) => {
 };
 
 module.exports.refreshToken = (data) => {
-  const refreshToken = jwt.sign(data,JWT_REFRESH_SECRET, { expiresIn: '7d' });
+  const refreshToken = jwt.sign(data,JWT_REFRESH_SECRET, { expiresIn: '14d' });
 
   return refreshToken;
 };
@@ -28,7 +28,7 @@ module.exports.jwtVerifyToken = (token) => {
   }  
 };
 
-module.exports.jwtVerifyRefreshToken = (token) => {
+module.exports.jwtVerifyRefreshToken = (token) => {	
   return new Promise((resolve, reject) => {	
     jwt.verify(token,JWT_REFRESH_SECRET,(err,user) => {
        if(err){
