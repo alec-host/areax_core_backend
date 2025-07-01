@@ -28,14 +28,13 @@ exports.SignIn = async(req,res) => {
 	}
 	const reference_number = await getReferenceNumberByEmail(email);    
         const storedPasswordAndEmailVerification = await getUserPasswordByEmail(email);    
+        const _accessToken = accessToken({ email:email,reference_number:reference_number });
+        const _refreshToken = refreshToken({email:email,reference_number:reference_number });	    
         if(storedPasswordAndEmailVerification[0]){
-            const allowedAccess = await compare(password,storedPasswordAndEmailVerification[0]); 		
-	    console.log(allowedAccess, '    ', storedPasswordAndEmailVerification);	
-            if(storedPasswordAndEmailVerification[1] > 0){    
-                const signIn = await modifyUserByEmail(email,{is_online:1});
+            const allowedAccess = await compare(password,storedPasswordAndEmailVerification[0]);
+            if(storedPasswordAndEmailVerification[1] > 0){
+		const signIn = await modifyUserByEmail(email,{ is_online:1,access_token:_accessToken,refresh_token:_refreshToken });    
                 if(allowedAccess && signIn){
-                    const _accessToken = accessToken({ email:email,reference_number:reference_number });
-                    const _refreshToken = refreshToken({email:email,reference_number:reference_number });
                     await getUserProfileByEmail(email, async profileCallback => {
 		        const reference_number =  profileCallback[0].reference_number;    
 		        const message = 'Login was successful.';    
