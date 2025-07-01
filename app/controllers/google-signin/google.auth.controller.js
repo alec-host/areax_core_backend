@@ -129,7 +129,7 @@ exports.GoogleUserSignIn = async(req,res) => {
        }else{
 	   const storedPasswordAndEmailVerification = await getUserPasswordByEmail(email);
            if(storedPasswordAndEmailVerification[1] > 0){	
-               await modifyUserByEmail(email,{is_online:1,access_token:access_token,refresh_token:refresh_token});
+               const resp = await modifyUserByEmail(email,{is_online:1,access_token:access_token,refresh_token:refresh_token});  
                await getUserProfileByEmail(email, async callBack => {
 	          const reference_number = callBack[0].reference_number;
 	          const payload = {
