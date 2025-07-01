@@ -21,6 +21,9 @@ console.log(APP_SERVER_PORT.toString(),' ',APP_SERVER_PORT.toString().split(',')
 app.use(helmet());
 app.use(cors());
 
+//-.trust first proxy.
+app.set('trust proxy', 1);
+
 const limiter = rateLimit({
   windowMs: 10 * 60 * 1000,
   max: 100, // Limit each IP to 100 requests per windowMs
