@@ -1,5 +1,5 @@
 const { validationResult } = require("express-validator");
-const { sendEmailOtp } = require("../../../services/NODEMAILER");
+const { sendEmailOtp,sendGridEmailOtp } = require("../../../services/NODEMAILER");
 const { generateRandomOtp } = require("../../../utils/generate.otp");
 const { findUserCountByEmail } = require("../../user/find.user.count.by.email");
 const { findUserCountByReferenceNumber } = require("../../user/find.user.count.by.reference.no");
@@ -32,7 +32,7 @@ exports.ForgetPasswordEmailOtp = async(req,res) => {
        if(waitTimeInMinutes !== null){
            const delay = JSON.stringify(waitTimeInMinutes);
            if(JSON.parse(delay).time_in_minutes >= 1){
-              const response = await sendEmailOtp(email,otpCode);
+              const response = await sendGridEmailOtp(email,otpCode);
               if(!response[0]){
                   res.status(400).json({
                       success: false,
@@ -61,7 +61,7 @@ exports.ForgetPasswordEmailOtp = async(req,res) => {
               return;    
 	   }	 
        }else{
-	   const response = await sendEmailOtp(email,otpCode);
+	   const response = await sendGridEmailOtp(email,otpCode);
            if(!response[0]){
                res.status(400).json({
                    success: false,

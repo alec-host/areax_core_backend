@@ -2,7 +2,7 @@ const {v4:uuidv4} = require('uuid');
 
 const { addDays } = require('../../utils/utils');
 const { findUserCountByEmail } = require('../user/find.user.count.by.email');
-const { sendEmailOtp } = require('../../services/NODEMAILER');
+const { sendEmailOtp,sendGridEmailOtp } = require('../../services/NODEMAILER');
 const { sendMessageToQueue } = require("../../services/RABBIT-MQ");
 const { saveMailOtp } = require('../otp/save.mail.otp');
 const { getUserProfileByEmail } = require('../user/get.user.profile.by.email');
@@ -55,7 +55,7 @@ exports.UserSignUp = async(req,res) => {
       const reference_number_in = reference_number;
      	        	   
       const otpCode = generateRandomOtp();
-      const response = await sendEmailOtp(email,otpCode);
+      const response = await sendGridEmailOtp(email,otpCode);
       if(!response[0]){
          res.status(400).json({
              success: false,

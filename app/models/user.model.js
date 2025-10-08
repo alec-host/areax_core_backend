@@ -24,6 +24,10 @@ module.exports = (sequelize, Sequelize) => {
       phone: {
          type: DataTypes.STRING(20),
          allowNull: true
+      },
+      country_code: {
+         type: DataTypes.STRING(5),
+         allowNull: true
       },	   
       username: {
 	  type: DataTypes.STRING(255),
@@ -43,7 +47,7 @@ module.exports = (sequelize, Sequelize) => {
          }	      
       },
       caption: {
-	 type: DataTypes.STRING(160),
+	 type: DataTypes.TEXT,
          allowNull: true
       },
       guardian_picture_url: {
@@ -54,6 +58,15 @@ module.exports = (sequelize, Sequelize) => {
                 msg: "Invalid URL format."
              },
          }	      
+      },	  
+      wallpaper_picture_url: {
+         type: DataTypes.STRING(2048),
+         allowNull: true,
+         validate: {
+             isUrl: {
+                msg: "Invalid URL format."
+             },
+         }
       },	   
       tier_reference_number: {
          type: DataTypes.STRING(65),
@@ -67,14 +80,14 @@ module.exports = (sequelize, Sequelize) => {
          type: DataTypes.STRING(65),
          allowNull: true
       },
-      access_token: DataTypes.STRING(300),
-      refresh_token: DataTypes.STRING(300),
+      access_token: DataTypes.STRING(500),
+      refresh_token: DataTypes.STRING(500),
       token_expiry: DataTypes.DATE,
       password: DataTypes.STRING(65),
       token_id: DataTypes.STRING(70),
       hashed_token_id: DataTypes.STRING(70),
       privacy_status: {
-        type: DataTypes.ENUM("public", "friends_only", "anonymous"),
+        type: DataTypes.ENUM("public", "private", "anonymous"),
         defaultValue: "public",
         allowNull: false
       },	   
@@ -107,7 +120,7 @@ module.exports = (sequelize, Sequelize) => {
          indexes: [{
             name: 'idx_areax_users',
             unique: false,
-            fields : ['reference_number','phone','email','privacy_status','email_verified','phone_verified','is_online','is_deleted'] 
+            fields : ['reference_number','phone','country_code','email','privacy_status','email_verified','phone_verified','is_online','is_deleted'] 
         }],
          // Define table options
          timestamps: false,

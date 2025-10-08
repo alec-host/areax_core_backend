@@ -18,7 +18,8 @@ const addPhoneController = require("../controllers/otp/phone/add.phone.controlle
 const verifyPhoneController = require("../controllers/otp/phone/verify.phone.controller");
 const modifyUserProfileController = require("../controllers/profile/update.user.profile");
 const updateUserProfilePictureController = require('../controllers/profile/upload.user.profile.picture');
-const updateGaurdianPictureController = require('../controllers/profile/upload.user.guardian.picture.js');
+const updateGaurdianPictureController = require('../controllers/profile/upload.user.guardian.picture');
+const updateWallpaperPictureController = require('../controllers/profile/upload.user.wallpaper.picture');
 const modifyUserTokenIdController = require("../controllers/profile/update.user.token.id");
 const getProfileController = require('../controllers/profile/get.user.profile');
 const getTokenIdController = require('../controllers/profile/get.user.token.id');
@@ -26,6 +27,8 @@ const requestEmailOtpController = require('../controllers/otp/email/request.mail
 const requestWhatsAppOtpController = require('../controllers/otp/whatsapp/request.whatsapp.otp');
 const forgotPasswordEmailOtpController = require('../controllers/otp/email/forgot.password.email.otp');
 const refreshTokenController = require('../controllers/google-signin/google.refresh.token.controller');
+const rotateRefreshTokenController = require('../controllers/google-signin/rotate.refresh.token.controller');
+const userAuthenticationController = require('../controllers/google-signin/user.authentication.controller');
 const uploadImageController = require('../controllers//image-upload/image.upload');
 const uploadFileToBucketController = require('../controllers/s3-bucket/upload.file.bucket');
 const createBlockchainWalletController = require('../controllers/blockchain-wallet/create.blockchain.wallet.controller');
@@ -77,7 +80,7 @@ const {
 	  instagramAuthCallbackValidator, tokenIdValidator, s3BucketValidator, blockchainWalletValidator, 
 	  formDataValidator, forgetPasswordValidator, passwordChangeValidator, getIgUserIdValidator, tiktokAuthValidator,
 	  getUsersLocationValidator, deleteTierValidator, getTierValidator, createTierValidator, addSubscriptonPlanValidator, 
-	  getSubscriptionPlanValidator, formDataGaurdianValidator 
+	  getSubscriptionPlanValidator, formDataGaurdianValidator, rotateTokenValidator, userAuthenticationValidator 
       } = require("../validation/common.validation");
 
 /**
@@ -220,6 +223,7 @@ module.exports = async(app) => {
      * Method: PATCH
      * @@email
      * @@phone
+     * @@country_code
      * @@country
      * @@city
      * @@reference_nunber
@@ -233,7 +237,7 @@ module.exports = async(app) => {
      * @@email
      * @@reference_number
      * Bearer Token: required
-     * Description: User profile picture has been uploaded.
+     * Description: Upload User profile picture.
     */
     router.post('/uploadUserProfilePicture',uploadFile.single('image'),auth,formDataValidator,updateUserProfilePictureController.UploadProfilePicture);
     /**
@@ -243,9 +247,19 @@ module.exports = async(app) => {
      * @@reference_number
      * @@gaurdian_name
      * Bearer Token: required
-     * Description: Spirit animal picture has been uploaded.
+     * Description: Upload Spirit animal picture.
     */
-    router.post('/uploadSpiritAnimalPicture',uploadFile.single('image'),auth,formDataGaurdianValidator,updateGaurdianPictureController.UploadGaurdianPicture);	
+    router.post('/uploadGuardian',uploadFile.single('image'),auth,formDataGaurdianValidator,updateGaurdianPictureController.UploadGaurdianPicture);	
+    /**
+     * Path: /api/v1/uploadWallpaper:
+     * Method; POST
+     * @@email
+     * @@reference_number
+     * @@gaurdian_name
+     * Bearer Token: required
+     * Description: Upload Wallpaper picture.
+    */	
+    router.post('/uploadWallpaper',uploadFile.single('image'),auth,formDataValidator,updateWallpaperPictureController.UploadWallpaperPicture);
     /**
      * Path: /api/v1/addBlockchainTokenId:
      * Method: POST
@@ -345,6 +359,23 @@ module.exports = async(app) => {
      * Description: Generate a new access token and refresh token.
     */ 
     router.post('/refreshAccessToken',requestEmailOtpValidator,refreshTokenController.SignInRefreshToken);
+    /**
+     * Path: /api/v1/rotateRefreshToken:
+     * Method: POST
+     * @@email
+     * @@reference_number
+     * @@old_refresh_token
+     * Description: Generate a new access token and refresh token.
+    */
+    router.post('/rotateRefreshToken',rotateTokenValidator,rotateRefreshTokenController.RotateRefreshToken);	
+    /**
+     * Path: /api/v1/testUserAuthentication:
+     * Method: POST
+     * @@email
+     * @@password
+     * Description: Generate a new access token and refresh token.
+    */
+    router.post('/testUserAuthentication',userAuthenticationValidator,userAuthenticationController.UserAuthentication);	
      /**
      * Path: /api/v1/auth/deleteUserAccount:
      * Method: POST
@@ -552,7 +583,7 @@ module.exports = async(app) => {
      * @@search
      * @@description: Log user logs.
     */
-    router.get('/userLogs',auth,combinedActivityErrorLogsController.CombinedActivityErrorLogs);
+    router.get('/userLogs',basicAuth,combinedActivityErrorLogsController.CombinedActivityErrorLogs);
     /**
      * Method: POST
      * @@/api/v1/createSubscriptionTier:
@@ -626,5 +657,5 @@ module.exports = async(app) => {
     	
     app.use("/api/v1",router);
     app.use(error.errorHandler);
-    app.use((req, res, next) => { res.status(404).json({ success: false, error: true, error: true, message: 'Endpoint not found or parameter missing' }); });	
+    //app.use((req, res, next) => { res.status(404).json({ success: false, error: true, error: true, message: 'Endpoint not found or parameter missing' }); });	
 };

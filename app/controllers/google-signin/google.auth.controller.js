@@ -5,7 +5,7 @@ const { confirmGoogleToken } = require('../../services/GOOGLE-SIGN');
 const { sendMessageToQueue } = require("../../services/RABBIT-MQ");
 const { findUserCountByEmail } = require('../user/find.user.count.by.email');
 const { modifyUserByEmail } = require('../user/modify.user.by.email');
-const { sendEmailOtp } = require('../../services/NODEMAILER');
+const { sendEmailOtp,sendGridEmailOtp } = require('../../services/NODEMAILER');
 const { saveMailOtp } = require('../otp/save.mail.otp');
 const { getUserProfileByEmail } = require('../user/get.user.profile.by.email');
 const { generateRandomOtp } = require('../../utils/generate.otp');
@@ -52,7 +52,7 @@ exports.GoogleUserSignIn = async(req,res) => {
        const found_user = await findUserCountByEmail(email);	    
        if(found_user === 0){
            const otpCode = generateRandomOtp();
-           const response = await sendEmailOtp(email,otpCode);
+           const response = await sendGridEmailOtp(email,otpCode);
            if(!response[0]){
               res.status(400).json({
                   success: false,

@@ -7,7 +7,7 @@ const { modifyUserByEmail } = require("../user/modify.user.by.email");
 const { validationResult } = require('express-validator');
 
 module.exports.UpdateProfile = async(req,res) => {
-    const { username,email,caption,phone,country,city,reference_number } = req.body;
+    const { email,reference_number,username,caption,phone,country_code,country,city,privacy_status } = req.body;
     const errors = validationResult(req);
     if(!errors.isEmpty()){
         res.status(422).json({ success: false, error: true, message: errors.array()});	    
@@ -42,7 +42,7 @@ module.exports.UpdateProfile = async(req,res) => {
           });	       
           return;
        }
-       await modifyUserByEmail(email,{phone:formattedPhone,username,caption,country,city});
+       await modifyUserByEmail(email,{ phone:formattedPhone,country_code,username,caption,country,city,privacy_status });
        await getUserProfileByEmail(email,callBack => {
            res.status(200).json({
                success: true,

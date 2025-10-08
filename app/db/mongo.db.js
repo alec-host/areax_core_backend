@@ -3,17 +3,17 @@ const { MONGO_USER, MONGO_PASS, MONGO_PORT, MONGO_DATABASE_NAME } = require("../
 
 mongoose.set('debug', true);
 module.exports.mongoDb = async() => {
+    if(mongoose.connection.readyState === 1)return;
     try{
-        if (mongoose.connection.readyState === 1) return;
-
+       
 	const connection = await mongoose.connect(`mongodb://${MONGO_USER}:${MONGO_PASS}@localhost:${MONGO_PORT}/${MONGO_DATABASE_NAME}`, {
-	    dbName: MONGO_DATABASE_NAME,
+	   dbName: MONGO_DATABASE_NAME
 	});
 
 	console.log(`MongoDB Connected: ${connection}`);
 	return connection;
     }catch(error){
-	console.error(`Error connecting to MongoDB: ${err.message}`);
+	console.error(`Error connecting to MongoDB: ${error.message}`);
 	return null;    
     }
 };

@@ -1,3 +1,4 @@
+const jwt = require("jsonwebtoken");
 const { jwtVerifyToken } = require("../services/JWT");
 
 const verifyToken = (req, res, next) => {
@@ -17,6 +18,8 @@ const verifyToken = (req, res, next) => {
            if (token.startsWith("Bearer ")) {
                token = token.split(" ")[1];
            }
+   
+	   //console.log("Decoded token:", jwt.decode(token));
 
            if (!token) {
                return res.status(401).json({

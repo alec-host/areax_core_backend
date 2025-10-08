@@ -2,6 +2,7 @@ const { validationResult } = require("express-validator");
 const { findUserCountByEmail } = require("../user/find.user.count.by.email");
 const { findUserCountByReferenceNumber } = require("../user/find.user.count.by.reference.no");
 const { awsBucket } = require("../../services/AWS-BUCKET");
+const { httpChangeGroupProfilePicture } = require("../../services/CHANGE-GROUP-PROFILE-PICTURE");
 const { modifyUserByEmail } = require("../user/modify.user.by.email");
 
 module.exports.UploadProfilePicture = async(req,res) => {
@@ -42,7 +43,8 @@ module.exports.UploadProfilePicture = async(req,res) => {
         const fileType = originalnameArray[originalnameArray.length - 1];
         awsBucket(imageName,fileType,imagePath).then(async fileUrl => {
            const payload = { profile_picture_url: fileUrl };
-           await modifyUserByEmail(email, payload);			    
+           await modifyUserByEmail(email, payload);	
+           await httpChangeGroupProfilePicture({ email,reference_number,picture_url: fileUrl });		
            res.status(200).json({
                success: true,
                error: false,

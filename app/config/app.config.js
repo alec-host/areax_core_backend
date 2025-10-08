@@ -23,18 +23,18 @@ app.use(cors());
 
 //-.trust first proxy.
 app.set('trust proxy', 1);
-
+/*
 const limiter = rateLimit({
   windowMs: 10 * 60 * 1000,
   max: 100, // Limit each IP to 100 requests per windowMs
   message: 'Too many requests from this IP, please try again later'
 });
 app.use("/api/v1/", limiter);
-
+*/
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
-db.sequelize.sync({/* force: false, alter: true */})
+db.sequelize.sync({ /*alter: true*/ })
   .then(() => {
    console.log("Synced db.");
 })

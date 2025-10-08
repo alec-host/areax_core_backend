@@ -68,13 +68,31 @@ const verifyPhoneValidator = [
 
 const updateProfileValidator = [
     body('email', 'Email cannot be Empty').not().isEmpty(),
-    body('email', 'Invalid email').isEmail(), 
-    //body('phone', 'Phone must be provided').not().isEmpty(),
-    //body('username', 'Name must be provided').not().isEmpty(),
-    //body('caption', 'Caption must be provided').not().isEmpty(),	
-    //body('country', 'Country must be provided').not().isEmpty(),
-    //body('city', 'City number must be provided').not().isEmpty(),
+    body('email', 'Invalid email').isEmail(),
     body('reference_number', 'Reference number must be provided').not().isEmpty(),
+    body('phone')
+      .optional()
+      .isString().withMessage('Phone must be a provided'),
+    body('country_code')
+      .optional()
+      .isString().withMessage('Country Code must be a provided'),
+    body('username')
+      .optional()
+      .isString().withMessage('Username must be a provided'),
+    body('caption')
+      .optional()
+      .isString().withMessage('Caption must be a provided'),
+    body('country')
+      .optional()
+      .isString().withMessage('Country must be a provided'),
+    body('city')
+      .optional()
+      .isString().withMessage('City must be a provided'),//privacy_status
+    body('privacy_status')
+      .optional()
+      .isIn(['public', 'private', 'anonymous'])
+      .withMessage('Privacy status must be one of: public, private, or anonymous')
+      .default('public')	
 ];
 
 const getProfileValidator = [
@@ -223,6 +241,19 @@ const getSubscriptionPlanValidator = [
    body('payment_plan', 'Missing: payment_plan must be provided').not().isEmpty(),
 ];
 
+const rotateTokenValidator = [
+    body('email', 'Email cannot be Empty').not().isEmpty(),
+    body('email', 'Invalid email').isEmail(),
+    //body('reference_number', 'Reference number must be provided').not().isEmpty(),
+    body('old_refresh_token', 'Old refresh token number must be provided').not().isEmpty(),	
+];
+
+const userAuthenticationValidator = [
+    body('email', 'Missing: email must be checked').not().isEmpty(),
+    body('email', 'Invalid email').isEmail(),
+    body('password', 'The minimum password length is 6 characters').isLength({min: 6}),
+];
+
 module.exports = {
     signUpValidator,
     googleSignInValidator,
@@ -254,5 +285,7 @@ module.exports = {
     createTierValidator,
     addSubscriptonPlanValidator,
     getSubscriptionPlanValidator,
-    formDataGaurdianValidator	
+    formDataGaurdianValidator,
+    rotateTokenValidator,
+    userAuthenticationValidator	
 };
