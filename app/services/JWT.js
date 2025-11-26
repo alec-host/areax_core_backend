@@ -79,8 +79,8 @@ module.exports.refreshToken = (data, meta={}) => {
 };
 
 module.exports.jwtVerifyToken = (token) => {
-  console.log("Signing with audience:", JWT_AUDIENCE);
-  console.log("Verifying against audiences:", getAcceptedAudiences());
+  //console.log("Signing with audience:", JWT_AUDIENCE);
+  //console.log("Verifying against audiences:", getAcceptedAudiences());
   try {
     const decoded = jwt.verify(token, JWT_SECRET,{
        audience: getAcceptedAudiences(),

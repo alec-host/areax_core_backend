@@ -77,7 +77,8 @@ exports.UserSignUp = async(req,res) => {
 	 return;
       }
 
-      const walletDetails = await postPayloadWithJsonPayload(`${APPLICATION_BASE_URL}/blockchain/api/v1/userWalletDetail`,{ user_id: email });    
+      const walletDetails = await postPayloadWithJsonPayload(`${APPLICATION_BASE_URL}/blockchain/api/v1/userWalletDetail`,{ user_id: email });   
+      //const walletDetails = [true,0];
       await getUserProfileByEmail(email, async profileCallback => {
          const payload_1 = {
             channel_name: 'activity_log',

@@ -25,7 +25,7 @@ module.exports.createUser = async(newUser) => {
 
         // Create the user
         const user = await Users.create(newUser,{
-            hooks: false  // Disable hooks temporarily
+            hooks: true  // Disable hooks temporarily
             //hooks: true,
             //returning: true,
             //alidate: true		

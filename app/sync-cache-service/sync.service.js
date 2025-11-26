@@ -22,11 +22,11 @@ const updateSingleUserProfileCache = async (email) => {
     }
 };
 
-Users.afterUpdate(async (user) => await updateSingleUserProfileCache(user[0].email));
-Users.afterCreate(async (user) => await updateSingleUserProfileCache(user[0].email));
+Users.afterUpdate(async (user) => await updateSingleUserProfileCache(user.email));
+Users.afterCreate(async (user) => await updateSingleUserProfileCache(user.email));
 Users.afterDestroy(async (user) => { 
     const client = await connectToRedis();	
-    await deleteCache(client,`user:${user[0].email}`);
+    await deleteCache(client,`user:${user.email}`);
     await closeRedisConnection(client);
 });
 

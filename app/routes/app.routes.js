@@ -3,6 +3,7 @@ const basicAuth = require("../middleware/basic.auth");
 const uploadFile = require("../middleware/upload.storage");
 const rateLimit = require("../middleware/rate.limit");
 const { allowLocalTraffic } = require("../middleware/allow.local.traffic");
+const sanitizeInput = require('../middleware/sanitizeInput');
 
 const signUpController = require("../controllers/signup/signup.controller");
 const googleAuthController = require("../controllers/google-signin/google.auth.controller");
@@ -107,21 +108,21 @@ module.exports = async(app) => {
      * @@password
      * Description: Manual sign up.            
     */
-    router.post('/signUp',signUpValidator,signUpController.UserSignUp);
+    router.post('/signUp',signUpValidator,sanitizeInput,signUpController.UserSignUp);
     /**
      * Paths: /api/v1/signUp:
      * Method: POST
      * @@idToken
      * Description: Manual sign up.            
     */
-    router.post('/googleSignUp',googleSignInValidator,googleAuthController.GoogleUserSignIn);	
+    router.post('/googleSignUp',googleSignInValidator,sanitizeInput,googleAuthController.GoogleUserSignIn);	
      /**
      * paths: /api/v1/googleSignIn:
      * Method: POST
      * @@idToken
      * Description: Sign in via Google.            
     */
-    router.post('/googleSignIn',googleSignInValidator,googleAuthController.GoogleUserSignIn);
+    router.post('/googleSignIn',sanitizeInput,googleSignInValidator,sanitizeInput,googleAuthController.GoogleUserSignIn);
     /**
      * Paths: /api/v1/signIn:
      * Method: POST
@@ -129,7 +130,7 @@ module.exports = async(app) => {
      * @@password
      * Description: Maanual sign in.            
     */
-    router.post('/signIn',/*rateLimit(5, 5*60*1000),*/signInValidator,signInController.SignIn);
+    router.post('/signIn',/*rateLimit(5, 5*60*1000),*/signInValidator,sanitizeInput,signInController.SignIn);
     /**
      * Paths: /api/v1/signOut:
      * Method: POST
@@ -137,7 +138,7 @@ module.exports = async(app) => {
      * Bearer Token: required
      * Description: Sign out operation.            
     */
-    router.post('/signOut',signOutValidator,signOutController.SignOut);
+    router.post('/signOut',signOutValidator,sanitizeInput,signOutController.SignOut);
     /**
      * Paths: /api/v1/signedInStatus
      * Method: POST
@@ -146,7 +147,7 @@ module.exports = async(app) => {
      * Bearer Token: required
      * Description: Shows whether one is signed in or not ie.(1) signed in,  (0) not signed in.            
     */
-    router.post('/signedInStatus',auth,requestEmailOtpValidator,signedInStatusController.SignedInStatus);
+    router.post('/signedInStatus',auth,requestEmailOtpValidator,sanitizeInput,signedInStatusController.SignedInStatus);
     /**
      * Paths: /api/v1/changePassword
      * Method: POST
@@ -157,7 +158,7 @@ module.exports = async(app) => {
      * Bearer Token: required
      * Description: Change password.
     */
-    router.post('/changePassword',/*auth,passwordChangeValidator,*/changePasswordController.ChangePassword);
+    router.post('/changePassword',/*auth,passwordChangeValidator,*/sanitizeInput,changePasswordController.ChangePassword);
     /**
      * Paths: /api/v1/forgotPassword
      * Methodd: POST
@@ -168,7 +169,7 @@ module.exports = async(app) => {
      * Bearer Token: required
      * Description: Change password.
     */
-    router.post('/forgotPassword',auth,forgetPasswordValidator,forgetPasswordController.ModifyPassword);	
+    router.post('/forgotPassword',auth,forgetPasswordValidator,sanitizeInput,forgetPasswordController.ModifyPassword);	
     /**
      * Paths: /api/v1/ping
      * Method: POST
@@ -177,7 +178,7 @@ module.exports = async(app) => {
      * Bearer Token: required
      * Description: health app check.            
     */	
-    router.post('/ping',auth,healthCheckValidator,healthCheckController.HealthCheck);
+    router.post('/ping',auth,healthCheckValidator,sanitizeInput,healthCheckController.HealthCheck);
     /**
      * Paths: /api/v1/confirmEmail
      * Method: POST
@@ -187,7 +188,7 @@ module.exports = async(app) => {
      * Bearer Token: required
      * Description: Email address confirmed via received OTP mail.            
     */
-    router.post('/confirmEmail',auth,confirmEmailValidator,confirmEmailController.ConfirmEmail);
+    router.post('/confirmEmail',auth,confirmEmailValidator,sanitizeInput,confirmEmailController.ConfirmEmail);
     /**
      * Path /api/v1/confirmWhatsAppPhoneNumber
      * Method: POST
@@ -197,7 +198,7 @@ module.exports = async(app) => {
      * Bearer Token: required
      * Description: Phone number confirmed via received whatsapp OTP.
     */
-    router.post('/confirmWhatsAppPhoneNumber',confirmPhoneValidator,confirmWhatsAppPhoneNumberController.ConfirmWhatsAppPhoneNumber);
+    router.post('/confirmWhatsAppPhoneNumber',confirmPhoneValidator,sanitizeInput,confirmWhatsAppPhoneNumberController.ConfirmWhatsAppPhoneNumber);
     /**
      * Path: /api/v1/addPhoneNumber
      * Method: POST
@@ -207,7 +208,7 @@ module.exports = async(app) => {
      * Bearer Token: required
      * Description: Add a phone number.
     */
-    router.post('/addPhoneNumber',auth,addPhoneValidator,addPhoneController.AddPhone);
+    router.post('/addPhoneNumber',auth,addPhoneValidator,sanitizeInput,addPhoneController.AddPhone);
     /**
      * Path: /api/v1/verifyPhone:
      * Method: POST
@@ -217,7 +218,7 @@ module.exports = async(app) => {
      * Bearer Token: required
      * Description: Phone has been verified.            
     */
-    router.post('/verifyPhoneNumber',auth,verifyPhoneValidator,verifyPhoneController.VerifyPhone);
+    router.post('/verifyPhoneNumber',auth,verifyPhoneValidator,sanitizeInput,verifyPhoneController.VerifyPhone);
     /**
      * Path: /api/v1/updateUserProfile:
      * Method: PATCH
@@ -230,7 +231,7 @@ module.exports = async(app) => {
      * Bearer Token: required
      * Description: User profile has been updated.            
     */
-    router.patch('/updateUserProfile',auth,updateProfileValidator,modifyUserProfileController.UpdateProfile);
+    router.patch('/updateUserProfile',auth,updateProfileValidator,sanitizeInput,modifyUserProfileController.UpdateProfile);
     /**
      * Path: /api/v1/updateUserProfilePicture:
      * Method; POST
@@ -239,7 +240,7 @@ module.exports = async(app) => {
      * Bearer Token: required
      * Description: Upload User profile picture.
     */
-    router.post('/uploadUserProfilePicture',uploadFile.single('image'),auth,formDataValidator,updateUserProfilePictureController.UploadProfilePicture);
+    router.post('/uploadUserProfilePicture',uploadFile.single('image'),auth,formDataValidator,sanitizeInput,updateUserProfilePictureController.UploadProfilePicture);
     /**
      * Path: /api/v1/uploadSpiritAnimalPicture:
      * Method; POST
@@ -249,7 +250,7 @@ module.exports = async(app) => {
      * Bearer Token: required
      * Description: Upload Spirit animal picture.
     */
-    router.post('/uploadGuardian',uploadFile.single('image'),auth,formDataGaurdianValidator,updateGaurdianPictureController.UploadGaurdianPicture);	
+    router.post('/uploadGuardian',uploadFile.single('image'),auth,formDataGaurdianValidator,sanitizeInput,updateGaurdianPictureController.UploadGaurdianPicture);	
     /**
      * Path: /api/v1/uploadWallpaper:
      * Method; POST
@@ -259,7 +260,7 @@ module.exports = async(app) => {
      * Bearer Token: required
      * Description: Upload Wallpaper picture.
     */	
-    router.post('/uploadWallpaper',uploadFile.single('image'),auth,formDataValidator,updateWallpaperPictureController.UploadWallpaperPicture);
+    router.post('/uploadWallpaper',uploadFile.single('image'),auth,formDataValidator,sanitizeInput,updateWallpaperPictureController.UploadWallpaperPicture);
     /**
      * Path: /api/v1/addBlockchainTokenId:
      * Method: POST
@@ -269,7 +270,7 @@ module.exports = async(app) => {
      * Bearer Token: required
      * Description: Update token id against a user.
     */
-    router.post('/addBlockchainTokenId',auth,tokenIdValidator,modifyUserTokenIdController.UpdateTokenId);	
+    router.post('/addBlockchainTokenId',auth,tokenIdValidator,sanitizeInput,modifyUserTokenIdController.UpdateTokenId);	
     /**
      * Path: /api/v1/getUserProfile
      * Method: GET
@@ -278,7 +279,7 @@ module.exports = async(app) => {
      * Bearer Token: required
      * Description: Retrieve user profile information.            
     */
-    router.get('/getUserProfile',auth,getProfileValidator,getProfileController.GetProfile);
+    router.get('/getUserProfile',auth,getProfileValidator,sanitizeInput,getProfileController.GetProfile);
      /**
      * paths: /api/v1/getBlockchainTokenId:
      * Method: GET
@@ -287,7 +288,7 @@ module.exports = async(app) => {
      * Bearer Token: required
      * Description: Get blockchain ID.           
     */   
-    router.get('/getBlockchainTokenId',auth,getProfileValidator,getTokenIdController.GetUserTokenID);
+    router.get('/getBlockchainTokenId',auth,getProfileValidator,sanitizeInput,getTokenIdController.GetUserTokenID);
     /**
      * paths: /api/v1/requestEmailOtp:
      * Method: POST
@@ -297,7 +298,7 @@ module.exports = async(app) => {
      * Bearer Token: required
      * Description: Initiate an OTP to the provided email.            
     */	
-    router.post('/requestEmailOtp',auth,requestEmailOtpValidator,requestEmailOtpController.RequestEmailOtp);
+    router.post('/requestEmailOtp',auth,requestEmailOtpValidator,sanitizeInput,requestEmailOtpController.RequestEmailOtp);
     /**
      * paths: /api/v1/requestWhatsAppOtp
      * Method: POST
@@ -306,14 +307,14 @@ module.exports = async(app) => {
      * @@otp
      * Description: OTP has been sent to the provided phone.
     */	
-    router.post('/requestWhatsAppOtp',requestPhoneOtpValidator,requestWhatsAppOtpController.RequestWhatsAppOtp);	
+    router.post('/requestWhatsAppOtp',requestPhoneOtpValidator,sanitizeInput,requestWhatsAppOtpController.RequestWhatsAppOtp);	
     /**
      * paths: /api/v1/forgotPasswordEmailOtp:
      * Method: POST
      * @@email
      * Description: OTP has been sent to the provided email.
     */
-    router.post('/forgotPasswordEmailOtp',signOutValidator,forgotPasswordEmailOtpController.ForgetPasswordEmailOtp);	
+    router.post('/forgotPasswordEmailOtp',signOutValidator,sanitizeInput,forgotPasswordEmailOtpController.ForgetPasswordEmailOtp);	
     /**
      * paths: /api/v1/getInstagramBasicUserInfo:
      * Method: POST
@@ -322,7 +323,7 @@ module.exports = async(app) => {
      * Bearer Token: required
      * Description: Gets users basic information which includes username, account_type, & media_count.            
     */
-    router.get('/getInstagramBasicInfo',auth,getProfileValidator,instagramBasicInfoController.GetInstagramBasicInfo);
+    router.get('/getInstagramBasicInfo',auth,getProfileValidator,sanitizeInput,instagramBasicInfoController.GetInstagramBasicInfo);
     /**
      * paths: /api/v1/uploadImage:
      * Method: POST
@@ -339,7 +340,7 @@ module.exports = async(app) => {
      * @@filetype
      * Description: Uploads a file to Amazon s3 Bucket & return a URL.            
     */
-    router.post('/uploadToBucket',uploadFile.single('file'),s3BucketValidator,uploadFileToBucketController.UploadFileToBucket);
+    router.post('/uploadToBucket',uploadFile.single('file'),s3BucketValidator,sanitizeInput,uploadFileToBucketController.UploadFileToBucket);
     /**
      * paths: /api/v1/createBlockchainWallet:
      * Method: POST
@@ -358,7 +359,7 @@ module.exports = async(app) => {
      * @@reference_number
      * Description: Generate a new access token and refresh token.
     */ 
-    router.post('/refreshAccessToken',requestEmailOtpValidator,refreshTokenController.SignInRefreshToken);
+    router.post('/refreshAccessToken',requestEmailOtpValidator,sanitizeInput,refreshTokenController.SignInRefreshToken);
     /**
      * Path: /api/v1/rotateRefreshToken:
      * Method: POST
@@ -367,7 +368,7 @@ module.exports = async(app) => {
      * @@old_refresh_token
      * Description: Generate a new access token and refresh token.
     */
-    router.post('/rotateRefreshToken',rotateTokenValidator,rotateRefreshTokenController.RotateRefreshToken);	
+    router.post('/rotateRefreshToken',rotateTokenValidator,sanitizeInput,rotateRefreshTokenController.RotateRefreshToken);	
     /**
      * Path: /api/v1/testUserAuthentication:
      * Method: POST
@@ -375,7 +376,7 @@ module.exports = async(app) => {
      * @@password
      * Description: Generate a new access token and refresh token.
     */
-    router.post('/testUserAuthentication',userAuthenticationValidator,userAuthenticationController.UserAuthentication);	
+    router.post('/testUserAuthentication',userAuthenticationValidator,sanitizeInput,userAuthenticationController.UserAuthentication);	
      /**
      * Path: /api/v1/auth/deleteUserAccount:
      * Method: POST
@@ -383,7 +384,7 @@ module.exports = async(app) => {
      * @@reference_number
      * Description: Delete user account.
     */   
-    router.post('/deleteUserAccount',requestEmailOtpValidator,deleteUserController.PurgeUser);	
+    router.post('/deleteUserAccount',requestEmailOtpValidator,sanitizeInput,deleteUserController.PurgeUser);	
     /**
      * Path: /api/v1/auth/instagram:
      * Method: POST
@@ -392,7 +393,7 @@ module.exports = async(app) => {
      * @@client_type
      * Description: Authorize user via oauth to have access to Instagram resources.            
     */
-    router.post('/auth/instagram',instagramAuthValidator,instagramAuthController.InstagramAuthorize);
+    router.post('/auth/instagram',instagramAuthValidator,sanitizeInput,instagramAuthController.InstagramAuthorize);
     /**
      * Path: /auth/instagram/callback:
      * Method: GET
@@ -410,7 +411,7 @@ module.exports = async(app) => {
      * Bearer Token: required
      * Description: Revoke access to Instagram via App.            
      */
-    router.post('/revoke/instagram',auth,requestEmailOtpValidator,instagramRevokeCallbackController.InstagramRevoke);
+    router.post('/revoke/instagram',auth,requestEmailOtpValidator,sanitizeInput,instagramRevokeCallbackController.InstagramRevoke);
     /**
      * Path: /api/v1/media/instagram:
      * Method: GET
@@ -441,7 +442,7 @@ module.exports = async(app) => {
      * @@reference_number
      * Description:Get instagram user unique ID..
     */
-    router.get('/instagramUserId',getIgUserIdValidator,getInstagramUserIdController.GetInstagramUserId);
+    router.get('/instagramUserId',getIgUserIdValidator,sanitizeInput,getInstagramUserIdController.GetInstagramUserId);
     /**
      * /api/v1/getInstagramProfileStats:
      * Method: GET
@@ -457,7 +458,7 @@ module.exports = async(app) => {
      * @@reference_number
      * Description: return instagram token status i.e. status 0 or 1.
     */
-    router.post('/instagramTokenExist',auth,requestEmailOtpValidator,instagramTokenExistController.InstagramTokenExist);	
+    router.post('/instagramTokenExist',auth,requestEmailOtpValidator,sanitizeInput,instagramTokenExistController.InstagramTokenExist);	
     /**
      * /api/v1/getInstagramMediaRecord:
      * Method: GET
@@ -472,7 +473,7 @@ module.exports = async(app) => {
      * @@email
      * @@reference_number
     */
-    router.get('/getWalletDetails',auth,getProfileValidator,getWalletDetailsController.GetWalletDetails);	
+    router.get('/getWalletDetails',auth,getProfileValidator,sanitizeInput,getWalletDetailsController.GetWalletDetails);	
     /**
      * /api/v1/getWalletTransactions
      * Method: GET
@@ -500,7 +501,7 @@ module.exports = async(app) => {
      * @@email
      * @@reference_number
     */
-    router.get('/tiktokUserProfile',auth,getProfileValidator,getTikTokProfileController.GetTiktokProfile);
+    router.get('/tiktokUserProfile',auth,getProfileValidator,sanitizeInput,getTikTokProfileController.GetTiktokProfile);
     /**
      * /api/v1/tiktokToken
      * Method: GET
@@ -515,7 +516,7 @@ module.exports = async(app) => {
      * Bearer Token: required
      * Description: Revoke access to Tiktok via App.
      */
-    router.post('/revoke/tiktok',auth,requestEmailOtpValidator,tiktokRevokeController.TiktokRevoke);
+    router.post('/revoke/tiktok',auth,requestEmailOtpValidator,sanitizeInput,tiktokRevokeController.TiktokRevoke);
     /**
      * /api/v1/tiktokMediaRecord:
      * Method: GET
@@ -531,7 +532,7 @@ module.exports = async(app) => {
      * @@reference_number
      * Description: return tiktok token status i.e. status 0 or 1.
     */
-    router.post('/tiktokTokenExist',auth,requestEmailOtpValidator,tiktokTokenExistController.TiktokTokenExist);	
+    router.post('/tiktokTokenExist',auth,requestEmailOtpValidator,sanitizeInput,tiktokTokenExistController.TiktokTokenExist);	
     /**
      * Method: POST
      * @@/api/v1/depositPoints:
@@ -558,7 +559,7 @@ module.exports = async(app) => {
      * @@/api/v1/updateUserLocation:
      * @@description: Update user's location.
     */
-    router.get('/getUsersLocation',getUsersLocationValidator,getUsersLocationController.GetUsersLocation);
+    router.get('/getUsersLocation',getUsersLocationValidator,sanitizeInput,getUsersLocationController.GetUsersLocation);
     /**
      * Method: POST
      * @@/api/v1/logSystemError:
@@ -591,28 +592,28 @@ module.exports = async(app) => {
      * @@name
      * @@description: Create new subscription tier.
     */
-    router.post('/createSubscriptionTier',basicAuth,createTierValidator,createSubscriptionTierController.CreateSubscriptionTiers);
+    router.post('/createSubscriptionTier',basicAuth,createTierValidator,sanitizeInput,createSubscriptionTierController.CreateSubscriptionTiers);
     /**
      * Method: PATCH
      * @@/api/v1/updateSubscriptionTier:
      * @@reference_number
      * @@description: Modify subscription tier's details.
     */
-    router.patch('/updateSubscriptionTier',basicAuth,createTierValidator,updateSubscriptionTierController.UpdateSubscriptionTiers);
+    router.patch('/updateSubscriptionTier',basicAuth,createTierValidator,sanitizeInput,updateSubscriptionTierController.UpdateSubscriptionTiers);
     /**
      * Method: GET
      * @@/api/v1/getSubscriptionTier:
      * @@user
      * @@description: Get a list of subscription tiers.
     */
-    router.get('/getSubscriptionTier',basicAuth,getTierValidator,getSubscriptionTierController.GetSubscriptionTiers);
+    router.get('/getSubscriptionTier',basicAuth,getTierValidator,sanitizeInput,getSubscriptionTierController.GetSubscriptionTiers);
     /**
      * Method: DELETE
      * @@/api/v1/deleteSubscriptionTier:
      * @@reference_number
      * @@description: Soft delete a subscription tier.
     */
-    router.delete('/deleteSubscriptionTier/:reference_number',basicAuth,deleteTierValidator,softDeleteSubscriptionTierController.SoftDeleteSubscriptionTiers);
+    router.delete('/deleteSubscriptionTier/:reference_number',basicAuth,deleteTierValidator,sanitizeInput,softDeleteSubscriptionTierController.SoftDeleteSubscriptionTiers);
     /**
      * Method: PATCH
      * @@/api/v1/addSubscriptionPlan:
@@ -628,7 +629,7 @@ module.exports = async(app) => {
      * @@reference_number
      * @@description: Get a list of subscription tiers.
     */	
-    router.get('/getSubscriptionPlanList',auth,getProfileValidator,getSubscriptionPlanListController.GetSubscriptionPlanList);	
+    router.get('/getSubscriptionPlanList',auth,getProfileValidator,sanitizeInput,getSubscriptionPlanListController.GetSubscriptionPlanList);	
     /**
      * Method: POST
      * Path: /api/v1/getSubscriptionPlan
@@ -638,7 +639,7 @@ module.exports = async(app) => {
      * @@payment_plan - [y/m]
      * @@description: Returns subscription plan details such as cost, credit etc for each user.
     */
-    router.post('/getSubscriptionPlan',auth,getSubscriptionPlanValidator,getSubscriptionPlanController.GetSubscriptionPlan);
+    router.post('/getSubscriptionPlan',auth,getSubscriptionPlanValidator,sanitizeInput,getSubscriptionPlanController.GetSubscriptionPlan);
     /**
      * Method: GET
      * @@/api/v1/getMqMessage:
@@ -646,7 +647,7 @@ module.exports = async(app) => {
      * @@reference_number
      * @@description: Read a message from RabbitMQ.
     */
-    router.get('/getMqMessage',auth,getProfileValidator,readMqMessageController.ReadMQMessage);
+    router.get('/getMqMessage',auth,getProfileValidator,sanitizeInput,readMqMessageController.ReadMQMessage);
     /**
      * Method: POST
      * @@/api/v1/privacyStatus:

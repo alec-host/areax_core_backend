@@ -11,7 +11,8 @@ module.exports = (sequelize, Sequelize) => {
       reference_number: {
          type: DataTypes.STRING(65),
 	 unique: true,     
-         allowNull: false
+         allowNull: false,
+	 unique: 'uniq_tbl_areax_users_reference_number'     
       },
       google_user_id: {
          type: DataTypes.STRING(255),
@@ -80,6 +81,12 @@ module.exports = (sequelize, Sequelize) => {
          type: DataTypes.STRING(65),
          allowNull: true
       },
+      lat: { type: DataTypes.DECIMAL(8, 6), allowNull: true }, // -90..90
+      lon: { type: DataTypes.DECIMAL(9, 6), allowNull: true }, // -180..180 	   
+      time_zone: { 
+	 type: DataTypes.STRING(75),
+	 allowNull: true      
+      },	   
       access_token: DataTypes.STRING(500),
       refresh_token: DataTypes.STRING(500),
       token_expiry: DataTypes.DATE,
@@ -120,8 +127,18 @@ module.exports = (sequelize, Sequelize) => {
          indexes: [{
             name: 'idx_areax_users',
             unique: false,
-            fields : ['reference_number','phone','country_code','email','privacy_status','email_verified','phone_verified','is_online','is_deleted'] 
-        }],
+            fields : ['phone','country_code','email','privacy_status','email_verified','phone_verified','is_online','is_deleted'] 
+        },
+        {
+            name: 'uniq_tbl_areax_users_reference_number',
+            unique: true,
+            fields: ['reference_number'],
+        },
+        { name: 'idx_users_email_fp', fields: ['email_fp'] },
+        { name: 'idx_users_phone_fp', fields: ['phone_fp'] },
+        { name: 'idx_users_time_zone', fields: ['time_zone'] },
+        { name: 'idx_users_lat_lon', fields: ['lat', 'lon'] } // for bbox prefilter	 
+        ],
          // Define table options
          timestamps: false,
          tableName: 'tbl_areax_users'

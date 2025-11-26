@@ -40,7 +40,7 @@ const verifyToken = (req, res, next) => {
            req.user = req[2];		
 	   return next();	
         } catch (err) {
-	    console.error(err.message);	
+	    //console.error(err.message);	
             return res.status(401).json({
                 success: false,
                 error: true,
@@ -48,6 +48,6 @@ const verifyToken = (req, res, next) => {
             });
         }
     //return next();
-  };
+};
   
-  module.exports = verifyToken;
+module.exports = verifyToken;
