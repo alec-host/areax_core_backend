@@ -1,10 +1,9 @@
 const mongoose = require("mongoose");
-const { mongoDb } = require("../../../db/mongo.db");
+
 const { TikTokPersonDataModel } = require("../../../mongodb.models");
 
 module.exports.saveTikTokUserProfile = async(payload) => {
     try{
-	const connection = await mongoDb();    
 	const filter = { reference_number: payload.reference_number };
 
         const update = {
@@ -16,9 +15,10 @@ module.exports.saveTikTokUserProfile = async(payload) => {
             avatar_url: payload.avatar_url,
             bio_description: payload.bio_description
         };
-        if(connection){
-	    const options = { new: true, upsert: true };	
-	    const result = await TikTokPersonDataModel.findOneAndUpdate(filter, update, options);	
+        
+	const options = { new: true, upsert: true };	
+	const result = await TikTokPersonDataModel.findOneAndUpdate(filter, update, options);	
+	if(result){
             return result;
         }else{
             console.log('Connection to db has failed');
@@ -27,7 +27,5 @@ module.exports.saveTikTokUserProfile = async(payload) => {
     }catch(err){
         console.error('Error: failed to insert or update. ',err);
         return null;
-    }finally{
-        mongoose.connection.close();
     }
 };

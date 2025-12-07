@@ -16,6 +16,43 @@ const signUpValidator = [
     body('email', 'Missing: email must be checked').not().isEmpty(),
     body('email', 'Invalid email').isEmail(),
     body('password', 'The minimum password length is 6 characters').isLength({min: 6}),
+    // referral_code is optional but must be a string if present
+    body('referral_code')
+      .optional()
+      .isString()
+      .withMessage('Referral code must be a string'),
+    // device_fingerprint is optional but must be a string if present
+    body('device_fingerprint')
+      .optional()
+      .isString()
+      .withMessage('Device fingerprint must be a string'),
+    // custom rule: if referral_code is provided, device_fingerprint must also be provided
+    body('referral_code').custom((value, { req }) => {
+      if(value && !req.body.device_fingerprint) {
+         throw new Error('Device fingerprint is required when referral_code is provided');
+      }
+      return true;
+    })	
+];
+
+const googleSignUpValidator = [
+    body('idToken', 'Missing: idToken must be checked').not().isEmpty(),
+    body('referral_code')
+      .optional()
+      .isString()
+      .withMessage('Referral code must be a string'),
+    // device_fingerprint is optional but must be a string if present
+    body('device_fingerprint')
+      .optional()
+      .isString()
+      .withMessage('Device fingerprint must be a string'),
+    // custom rule: if referral_code is provided, device_fingerprint must also be provided
+    body('referral_code').custom((value, { req }) => {
+      if(value && !req.body.device_fingerprint) {
+         throw new Error('Device fingerprint is required when referral_code is provided');
+      }
+      return true;
+    })	
 ];
 
 const googleSignInValidator = [
@@ -254,8 +291,38 @@ const userAuthenticationValidator = [
     body('password', 'The minimum password length is 6 characters').isLength({min: 6}),
 ];
 
+const emailValidator = [
+  body('email')
+    .exists({ checkFalsy: true })
+    .withMessage('Email is required')
+    .isEmail()
+    .withMessage('Invalid email format')
+    .normalizeEmail() // optional: trims and lowercases
+];
+
+const processReferralCodeValidator = [
+    body('email', 'Missing: email must be checked').not().isEmpty(),
+    body('email', 'Invalid email').isEmail(),
+    // referral_code is optional but must be a string if present
+    body('referral_code')
+      .isString()
+      .withMessage('Referral code must be a string'),
+    // device_fingerprint is optional but must be a string if present
+    body('device_fingerprint')
+      .isString()
+      .withMessage('Device fingerprint must be a string'),
+    // custom rule: if referral_code is provided, device_fingerprint must also be provided
+    body('referral_code').custom((value, { req }) => {
+      if(value && !req.body.device_fingerprint) {
+         throw new Error('Device fingerprint is required when referral_code is provided');
+      }
+      return true;
+    })
+];
+
 module.exports = {
     signUpValidator,
+    googleSignUpValidator,	
     googleSignInValidator,
     signInValidator,
     signOutValidator,
@@ -287,5 +354,7 @@ module.exports = {
     getSubscriptionPlanValidator,
     formDataGaurdianValidator,
     rotateTokenValidator,
-    userAuthenticationValidator	
+    userAuthenticationValidator,
+    emailValidator,
+    processReferralCodeValidator	
 };

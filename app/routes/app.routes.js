@@ -1,3 +1,6 @@
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
+
 const auth = require("../middleware/auth");
 const basicAuth = require("../middleware/basic.auth");
 const uploadFile = require("../middleware/upload.storage");
@@ -72,6 +75,7 @@ const getSubscriptionPlanController = require('../controllers/tiers/get.subscrip
 const getSubscriptionPlanListController = require('../controllers/tiers/get.subscription.tiers.list.controller');
 const readMqMessageController = require('../controllers/mq/read.mq.message.controller');
 const changeProfileStatusController = require('../controllers/profile/change.profile.status');
+const generatedReferralController = require('../controllers/referral/referral.controller');
 
 const error = require("./error/error.routes");
 const { 
@@ -81,7 +85,7 @@ const {
 	  instagramAuthCallbackValidator, tokenIdValidator, s3BucketValidator, blockchainWalletValidator, 
 	  formDataValidator, forgetPasswordValidator, passwordChangeValidator, getIgUserIdValidator, tiktokAuthValidator,
 	  getUsersLocationValidator, deleteTierValidator, getTierValidator, createTierValidator, addSubscriptonPlanValidator, 
-	  getSubscriptionPlanValidator, formDataGaurdianValidator, rotateTokenValidator, userAuthenticationValidator 
+	  getSubscriptionPlanValidator, formDataGaurdianValidator, rotateTokenValidator, userAuthenticationValidator, emailValidator, processReferralCodeValidator 
       } = require("../validation/common.validation");
 
 /**
@@ -96,9 +100,71 @@ const {
  * 
  */
 
+// 1. Swagger Configuration
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Project W Core APIs',
+      version: '1.0.0',
+      description: 'API documentation using external YAML files',
+    },
+    servers: [
+      { url: '/' }
+    ],
+  },
+  apis: ['../docs/*.yaml', './routes/*.js'], 
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+
 module.exports = async(app) => {
 
     const router = require("express").Router();
+
+  // Serve Swagger JSON spec
+  app.get('/api-time-machine-docs/swagger.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
+  });
+  // Serve Swagger UI HTML (using CDN for assets)
+  app.get('/api-core-docs', (req, res) => {
+     res.send(`
+       <!DOCTYPE html>
+       <html lang="en">
+        <head>
+         <meta charset="UTF-8">
+         <title>Core API Documentation</title>
+         <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui.css" />
+         <style>
+          body { margin: 0; padding: 0; }
+         </style>
+        </head>
+        <body>
+         <div id="swagger-ui"></div>
+         <script src="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-bundle.js"></script>
+         <script src="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-standalone-preset.js"></script>
+         <script>
+          window.onload = function() {
+          window.ui = SwaggerUIBundle({
+             url: '/api-core-docs/swagger.json',
+             dom_id: '#swagger-ui',
+             deepLinking: true,
+             presets: [
+                SwaggerUIBundle.presets.apis,
+                SwaggerUIStandalonePreset
+             ],
+             plugins: [
+               SwaggerUIBundle.plugins.DownloadUrl
+             ],
+             layout: "StandaloneLayout"
+          });
+          };
+         </script>
+        </body>
+       </html>
+      `);
+     });
 
     /**
      * Paths: /api/v1/signUp:
@@ -106,6 +172,8 @@ module.exports = async(app) => {
      * @@username
      * @@email
      * @@password
+     * @@referral_code (optional)
+     * @@device_fingerprint (optional)
      * Description: Manual sign up.            
     */
     router.post('/signUp',signUpValidator,sanitizeInput,signUpController.UserSignUp);
@@ -113,7 +181,9 @@ module.exports = async(app) => {
      * Paths: /api/v1/signUp:
      * Method: POST
      * @@idToken
-     * Description: Manual sign up.            
+     * @@referral_code (optional)
+     * @@device_fingerprint (optional) 
+     * Description: Google sign up.            
     */
     router.post('/googleSignUp',googleSignInValidator,sanitizeInput,googleAuthController.GoogleUserSignIn);	
      /**
@@ -122,13 +192,13 @@ module.exports = async(app) => {
      * @@idToken
      * Description: Sign in via Google.            
     */
-    router.post('/googleSignIn',sanitizeInput,googleSignInValidator,sanitizeInput,googleAuthController.GoogleUserSignIn);
+    router.post('/googleSignIn',googleSignInValidator,sanitizeInput,googleAuthController.GoogleUserSignIn);
     /**
      * Paths: /api/v1/signIn:
      * Method: POST
      * @@email
      * @@password
-     * Description: Maanual sign in.            
+     * Description: Manual sign in.            
     */
     router.post('/signIn',/*rateLimit(5, 5*60*1000),*/signInValidator,sanitizeInput,signInController.SignIn);
     /**
@@ -655,7 +725,35 @@ module.exports = async(app) => {
      * @@description: Change user profile status.
     */
     router.post('/privacyStatus',/*allowLocalTraffic('127.0.0.1','9124')*/basicAuth,changeProfileStatusController.ChangeProfileStatus);	
-    	
+    /**
+     * Paths: /api/v1/getReferralCode
+     * Method: GET
+     * @@email
+     * @@reference_number
+     * Bearer Token: required
+     * Description: get generates referral code.
+    */
+    router.get('/getReferralCode',auth,getProfileValidator,sanitizeInput,generatedReferralController.GenerateReferralCode);
+    /**
+     * Paths: /api/v1/processReferralCode
+     * Method: GET
+     * @@email
+     * @@reference_number
+     * @@referral_code
+     * @@device_fingerprint
+     * Bearer Token: required
+     * Description: get generates referral code.
+    */
+    router.post('/processReferralCode',/*auth,*/processReferralCodeValidator,sanitizeInput,generatedReferralController.ProcessReferralCode);	
+    /**
+     * Paths: /api/v1/gmailExist
+     * Method: GET
+     * @@email
+     * Bearer Token: required
+     * Description: get generates referral code.
+    */
+    router.post('/gmailExist',/*auth,*/emailValidator,sanitizeInput,generatedReferralController.ShowReferralCodeOnGoogleSignUp);
+
     app.use("/api/v1",router);
     app.use(error.errorHandler);
     //app.use((req, res, next) => { res.status(404).json({ success: false, error: true, error: true, message: 'Endpoint not found or parameter missing' }); });	

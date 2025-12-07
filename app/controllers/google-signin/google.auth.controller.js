@@ -20,7 +20,7 @@ const { getReferenceNumberByEmail } = require('../user/get.user.reference_number
 const { getSubscriptionTierByName,addSubscriptionPlanByReferenceNumber} = require('../tiers/admin.create.tiers');
 
 exports.GoogleUserSignIn = async(req,res) => {
-    const { idToken } = req.body;
+    const { idToken, referral_code, device_fingerprint } = req.body;
     const errors = validationResult(req);
     if(!errors.isEmpty()){
        res.status(422).json({ success: false, error: true, message: errors.array() });	    
@@ -96,7 +96,11 @@ exports.GoogleUserSignIn = async(req,res) => {
                       }
                   }
               });
-
+             
+              //-.referral code.
+	      const [okReferral,responseReferral] = await postPayloadWithJsonPayload(`${APPLICATION_BASE_URL}/api/v1/processReferralCode`,{ email, reference_number, referral_code, device_fingerprint });
+	      console.log(responseReferral);	   
+	      	   
 	      if(walletDetails[0]){    
                  res.status(201).json({
                      success: true,

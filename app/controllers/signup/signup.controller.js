@@ -19,7 +19,7 @@ const { addWalletBalanceByReferenceNumber } = require('../user/add.wallet.amount
 const { getSubscriptionTierByName,addSubscriptionPlanByReferenceNumber} = require('../tiers/admin.create.tiers');
 
 exports.UserSignUp = async(req,res) => {
-   const { username, email, password } = req.body;
+   const { username, email, password, referral_code, device_fingerprint } = req.body;
    const errors = validationResult(req);
    if(!errors.isEmpty()){
       return res.status(422).json({ success: false, error: true, message: errors.array() });   
@@ -103,7 +103,11 @@ exports.UserSignUp = async(req,res) => {
 		}
 	    }
          });
-	 
+	
+	 //-.referral code.
+         const [okReferral,responseReferral] = await postPayloadWithJsonPayload(`${APPLICATION_BASE_URL}/api/v1/processReferralCode`,{ email, reference_number, referral_code, device_fingerprint });
+         console.log(responseReferral);
+     
          if(walletDetails[0]){			
             res.status(201).json({
                 success: true,

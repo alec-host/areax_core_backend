@@ -1,21 +1,20 @@
 const mongoose = require("mongoose");
-const { mongoDb } = require("../../db/mongo.db");
+
 const { UserActivitiesModel,SystemErrorsModel } = require("../../mongodb.models");
 
 module.exports.combinedErrorActivityData = async(payload) => {
     try{
-        const connection = await mongoDb();   
 	const { page, limit, search } = payload;
 
-        if(connection){
-            const options = { skip: (page - 1) * limit, limit: parseInt(limit), };
+        const options = { skip: (page - 1) * limit, limit: parseInt(limit), };
 
-            const userActivities = await UserActivitiesModel.find(search)
-		.select('reference_number email activity_name time_stamp')
-		//.sort({ time_stamp: -1 })
-		.lean()
-		.skip(options.skip).limit(options.limit);
+        const userActivities = await UserActivitiesModel.find(search)
+	      .select('reference_number email activity_name time_stamp')
+	       //.sort({ time_stamp: -1 })
+	      .lean()
+      	      .skip(options.skip).limit(options.limit);
 
+        if(userActivities){    
 	    const systemErrors = await SystemErrorsModel.find(search) 
                 .select('reference_number email error_code error_message time_stamp')
 		//.sort({ time_stamp: -1 })
@@ -67,7 +66,5 @@ module.exports.combinedErrorActivityData = async(payload) => {
     }catch(err){
         console.error('Error: ',err.message);
         return null;
-    }finally{
-        mongoose.connection.close();
     }
 }; 

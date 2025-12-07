@@ -9,7 +9,7 @@ module.exports = (sequelize, Sequelize) => {
          autoIncrement: true
       },
       reference_number: {
-         type: DataTypes.STRING(65),
+         type: DataTypes.STRING(105),
 	 unique: true,     
          allowNull: false,
 	 unique: 'uniq_tbl_areax_users_reference_number'     
@@ -81,6 +81,7 @@ module.exports = (sequelize, Sequelize) => {
          type: DataTypes.STRING(65),
          allowNull: true
       },
+      referral_code: { type: DataTypes.STRING(10), unique: 'uniq_tbl_areax_referral_code', allowNull: true },	   
       lat: { type: DataTypes.DECIMAL(8, 6), allowNull: true }, // -90..90
       lon: { type: DataTypes.DECIMAL(9, 6), allowNull: true }, // -180..180 	   
       time_zone: { 

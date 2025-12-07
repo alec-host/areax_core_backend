@@ -14,18 +14,17 @@ module.exports.saveTikTokUserToken = async(payload) => {
 	    scope: payload.scope,
             expires_in: payload.expires_in
 	};
-        if(connection){
-            const options = { new: true, upsert: true };
-	    const result = await TikTokTokenModel.findOneAndUpdate(filter, update, options);
-            return result;
+       
+        const options = { new: true, upsert: true };
+	const result = await TikTokTokenModel.findOneAndUpdate(filter, update, options);
+        if(result){
+           return result;		
         }else{
-            console.log('Connection to db has failed');
-            return null;
+           console.log('Connection to db has failed');
+           return null;
         }
     }catch(err){
         console.error('Error: failed to insert or update. ',err);
         return null;
-    }finally{
-        mongoose.connection.close();
     }
 };

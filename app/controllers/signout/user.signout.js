@@ -4,12 +4,13 @@ const { modifyUserByEmail } = require("../user/modify.user.by.email");
 
 exports.SignOut = async(req,res) => {
     const { email } = req.body;
+
     const errors = validationResult(req);
     if(!errors.isEmpty()){
        res.status(422).json({ success: false, error: true, message: errors.array() });	    
        return;	    
     }
-    try{
+    try{   
        email_found = await findUserCountByEmail(email);
        if(email_found === 0){
            res.status(404).json({

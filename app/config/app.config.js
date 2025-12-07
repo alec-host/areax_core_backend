@@ -4,6 +4,8 @@ const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 
+const { mongoDb,mongoose } = require('../db/mongo.db');
+
 //require("../sync-cache-service/sync.service");
 //const swaggerUi = require("swagger-ui-express");
 //const pathToSwaggerUi = require("swagger-ui-dist").absolutePath();
@@ -16,7 +18,6 @@ const { APP_SERVER_PORT } = require("../constants/app_constants");
 const { db, db2 } = require("../models");
 
 const PORT = APP_SERVER_PORT.toString().split(',')[0];
-console.log(APP_SERVER_PORT.toString(),' ',APP_SERVER_PORT.toString().split(',')[0]);
 
 app.use(helmet());
 app.use(cors());
@@ -33,6 +34,10 @@ app.use("/api/v1/", limiter);
 */
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
+(async () => {
+  await mongoDb();
+})();
 
 db.sequelize.sync({ /*alter: true*/ })
   .then(() => {
@@ -63,5 +68,6 @@ require("../routes/app.routes")(app);
 
 module.exports = {
     app,
-    PORT
+    PORT,
+    mongoose	
 };

@@ -21,6 +21,7 @@ db.users.activities = require("../models/user.activity.model")(sequelize1,Sequel
 db.blockchains = require("../models/blockchain.wallet.model")(sequelize1,Sequelize);
 db.otps = require("./otp.model")(sequelize1,Sequelize);
 db.tiers = require("../models/subscription.tier.model")(sequelize1,Sequelize);
+db.referrals = require("../models/referral.model")(sequelize1,Sequelize);
 //-.database 2.
 db2.instagrams = require("./instagram.user.data.model")(sequelize2,Sequelize);
 db2.instagrams.archive = require("./user.instagram.data.archive.model")(sequelize2,Sequelize);
