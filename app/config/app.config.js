@@ -19,7 +19,17 @@ const { db, db2 } = require("../models");
 
 const PORT = APP_SERVER_PORT.toString().split(',')[0];
 
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://unpkg.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://unpkg.com", "https://fonts.googleapis.com"],
+      imgSrc: ["'self'", "data:", "https://validator.swagger.io"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+    },
+  },
+}));
 app.use(cors());
 
 //-.trust first proxy.
@@ -59,9 +69,56 @@ app.use(morgan('tiny'));
 
 app.use(express.static('uploads'));
 
-//app.use("/api-docs", swaggerUi.serve, express.static(pathToSwaggerUi,{index:false}),swaggerUi.setup(openapiSpecification));
-
-//app.use((req, res, next) => { res.status(404).json({ success: false, error: true, error: true, message: 'Endpoint not found or parameter missing' }); });
+const swaggerSpecs = require('./swagger.config');
+app.get('/api-core-docs/swagger.json', (req, res) => {
+  try {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpecs);
+  } catch (error) {
+    console.error("Swagger JSON Error:", error);
+    res.status(500).send("Error generating Swagger JSON: " + error.message);
+  }
+});
+app.get('/api-core-docs', (req, res) => {
+  const html = `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>Areax Core API</title>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.0.0/swagger-ui.min.css" />
+      <style>
+        html { box-sizing: border-box; overflow: -moz-scrollbars-vertical; overflow-y: scroll; }
+        *, *:before, *:after { box-sizing: inherit; }
+        body { margin:0; background: #fafafa; }
+      </style>
+    </head>
+    <body>
+      <div id="swagger-ui"></div>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.0.0/swagger-ui-bundle.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.0.0/swagger-ui-standalone-preset.js"></script>
+      <script>
+        window.onload = function() {
+          const ui = SwaggerUIBundle({
+            url: "/api-core-docs/swagger.json",
+            dom_id: '#swagger-ui',
+            deepLinking: true,
+            presets: [
+              SwaggerUIBundle.presets.apis,
+              SwaggerUIStandalonePreset
+            ],
+            plugins: [
+              SwaggerUIBundle.plugins.DownloadUrl
+            ],
+            layout: "StandaloneLayout",
+            validatorUrl: null
+          });
+          window.ui = ui;
+        };
+      </script>
+    </body>
+    </html>`;
+  res.send(html);
+});
 
 //-.routes.
 require("../routes/app.routes")(app);

@@ -100,71 +100,9 @@ const {
  * 
  */
 
-// 1. Swagger Configuration
-const swaggerOptions = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'Project W Core APIs',
-      version: '1.0.0',
-      description: 'API documentation using external YAML files',
-    },
-    servers: [
-      { url: '/' }
-    ],
-  },
-  apis: ['../docs/*.yaml', './routes/*.js'], 
-};
-
-const swaggerSpec = swaggerJsdoc(swaggerOptions);
-
 module.exports = async(app) => {
 
     const router = require("express").Router();
-
-  // Serve Swagger JSON spec
-  app.get('/api-time-machine-docs/swagger.json', (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    res.send(swaggerSpec);
-  });
-  // Serve Swagger UI HTML (using CDN for assets)
-  app.get('/api-core-docs', (req, res) => {
-     res.send(`
-       <!DOCTYPE html>
-       <html lang="en">
-        <head>
-         <meta charset="UTF-8">
-         <title>Core API Documentation</title>
-         <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui.css" />
-         <style>
-          body { margin: 0; padding: 0; }
-         </style>
-        </head>
-        <body>
-         <div id="swagger-ui"></div>
-         <script src="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-bundle.js"></script>
-         <script src="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-standalone-preset.js"></script>
-         <script>
-          window.onload = function() {
-          window.ui = SwaggerUIBundle({
-             url: '/api-core-docs/swagger.json',
-             dom_id: '#swagger-ui',
-             deepLinking: true,
-             presets: [
-                SwaggerUIBundle.presets.apis,
-                SwaggerUIStandalonePreset
-             ],
-             plugins: [
-               SwaggerUIBundle.plugins.DownloadUrl
-             ],
-             layout: "StandaloneLayout"
-          });
-          };
-         </script>
-        </body>
-       </html>
-      `);
-     });
 
     /**
      * Paths: /api/v1/signUp:

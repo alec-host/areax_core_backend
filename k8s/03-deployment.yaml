@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: areax-core-backend
+  namespace: default
+  labels:
+    app: areax-core-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: areax-core-backend
+  template:
+    metadata:
+      labels:
+        app: areax-core-backend
+    spec:
+      containers:
+      - name: areax-core-backend
+        image: <YOUR_ECR_REPO_URI>:latest # This will be replaced by CI/CD
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3005
+        envFrom:
+        - configMapRef:
+            name: areax-core-config
+        - secretRef:
+            name: areax-core-secrets
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
