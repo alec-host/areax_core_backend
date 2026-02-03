@@ -1,32 +1,35 @@
 const { validationResult } = require('express-validator');
-const { getUsersLocationList } = require("../user/mongo.get.users.location");
+const { DATABASE_DIALECT } = require("../../constants/app_constants");
+const locationService = (DATABASE_DIALECT && DATABASE_DIALECT !== 'mongo')
+    ? require("../user/pg.get.users.location")
+    : require("../user/mongo.get.users.location");
 
-module.exports.GetUsersLocation = async(req,res) => {
+module.exports.GetUsersLocation = async (req, res) => {
     const { list, start, limit } = req.query;
     const errors = validationResult(req);
-    if(!errors.isEmpty()){
-        res.status(422).json({success: false, error: true, message: errors.array()});
-	return;
+    if (!errors.isEmpty()) {
+        res.status(422).json({ success: false, error: true, message: errors.array() });
+        return;
     }
-    try{
-        const result = await getUsersLocationList(start, limit);	
-	if(result){	
+    try {
+        const result = await locationService.getUsersLocationList(start, limit);
+        if (result) {
             res.status(200).json({
                 success: true,
                 error: false,
-	        data: result,		 
+                data: result,
                 message: "Users location list"
             });
-	}else{
+        } else {
             res.status(404).json({
                 success: false,
                 error: true,
-	        data: [],		 
+                data: [],
                 message: "No users location list"
             });
-	}
-    }catch(e){
-        if(e){
+        }
+    } catch (e) {
+        if (e) {
             res.status(500).json({
                 success: false,
                 error: true,
@@ -35,3 +38,4 @@ module.exports.GetUsersLocation = async(req,res) => {
         }
     }
 };
+

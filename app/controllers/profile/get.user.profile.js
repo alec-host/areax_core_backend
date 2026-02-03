@@ -10,7 +10,7 @@ module.exports.GetProfile = async(req,res) => {
     const email = req.query.email;
     const reference_number = req.query.reference_number;
     if(!errors.isEmpty()){
-	res.status(422).json({success: true, error: true, message: errors.array()});
+	res.status(422).json({success: false, error: true, message: errors.array()});
 	return;
     }
     try{

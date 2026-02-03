@@ -1,149 +1,91 @@
-const {v4:uuidv4} = require('uuid');
-
-const { addDays } = require('../../utils/utils');
+const { v4: uuidv4 } = require('uuid');
 const { findUserCountByEmail } = require('../user/find.user.count.by.email');
-const { sendEmailOtp,sendGridEmailOtp } = require('../../services/NODEMAILER');
-const { sendMessageToQueue } = require("../../services/RABBIT-MQ");
+const { sendGridEmailOtp } = require('../../services/NODEMAILER');
 const { saveMailOtp } = require('../otp/save.mail.otp');
-const { getUserProfileByEmail } = require('../user/get.user.profile.by.email');
+
 const { generateRandomOtp } = require('../../utils/generate.otp');
 const { accessToken, refreshToken } = require('../../services/JWT');
 const { encrypt } = require('../../services/CRYPTO');
 const { validateEmail } = require('../../validation/validate.email');
 const { createUser } = require('../user/create.user');
 const { validationResult } = require('express-validator');
-const { postPayloadWithJsonPayload } = require('../../utils/post.payload');
-const { getReferenceNumberByEmail } = require('../user/get.user.reference_number.by.email');
-const { APPLICATION_BASE_URL,MEMORY_QUEUE_NAME,DEFAULT_SUBSCRIPTION_PLAN,USER_UID_LEAD_PREFIX,SUBSCRIPTION_VALIDITY_IN_DAYS } = require('../../constants/app_constants');
-const { addWalletBalanceByReferenceNumber } = require('../user/add.wallet.amount.credit');
-const { getSubscriptionTierByName,addSubscriptionPlanByReferenceNumber} = require('../tiers/admin.create.tiers');
 
-exports.UserSignUp = async(req,res) => {
-   const { username, email, password, referral_code, device_fingerprint } = req.body;
-   const errors = validationResult(req);
-   if(!errors.isEmpty()){
-      return res.status(422).json({ success: false, error: true, message: errors.array() });   
-   }
-   try{
-      const isEmailValid = await validateEmail(email);
-      if(!isEmailValid){
-         res.status(400).json({
-             success: false,
-             error: true,
-             message: 'Invalid email.'
-         });
-	 return;
-      }
+exports.UserSignUp = async (req, res) => {
+    const { username, email, password } = req.body;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        res.status(422).json({ errors: errors.array() });
+        return;
+    }
 
-      const found_email = await findUserCountByEmail(email);
-      if(found_email > 0){
-         res.status(400).json({
-             success: false,
-             error: true,
-             message: 'Email already exists'
-         });
-         return;
-      }
- 	   
-      const google_user_id = 0;
-      const reference_number = USER_UID_LEAD_PREFIX + uuidv4();
-      const profile_picture_url = null;
-      const guardian_picture_url = null;	   
-      const hashedPassword = await encrypt(password);	
-      const access_token = accessToken({ email:email,reference_number:reference_number });
-      const refresh_token = refreshToken({ email:email,reference_number:reference_number });
-      const reference_number_in = reference_number;
-     	        	   
-      const otpCode = generateRandomOtp();
-      const response = await sendGridEmailOtp(email,otpCode);
-      if(!response[0]){
-         res.status(400).json({
-             success: false,
-             error: true,
-             message: response[1] || 'Invalid token'
-         });
-	 return;
-      }
-      await saveMailOtp({phone:0,email:email,message:response[2]});
-     
-      const newUser = { reference_number,google_user_id,username,email,profile_picture_url,guardian_picture_url,access_token,refresh_token,password:hashedPassword };	   
-      const resp = await createUser(newUser); 
-      if(!resp[0]){
-         res.status(400).json({
-             success: false,
-             error: true,
-             message: resp[1]
-         });
-	 return;
-      }
+    try {
+        // EXTREME SPEED: Run validation, encryption, and existence check in parallel
+        const [isEmailValid, hashedPassword, found_email] = await Promise.all([
+            validateEmail(email),
+            encrypt(password),
+            findUserCountByEmail(email)
+        ]);
 
-      const walletDetails = await postPayloadWithJsonPayload(`${APPLICATION_BASE_URL}/blockchain/api/v1/userWalletDetail`,{ user_id: email });   
-      //const walletDetails = [true,0];
-      await getUserProfileByEmail(email, async profileCallback => {
-         const payload_1 = {
-            channel_name: 'activity_log',
-            email: email,
-            reference_number: reference_number,
-            activity_name: `SIGN UP: ${resp[1]} ${response[1]}`
-         };
-         await sendMessageToQueue(MEMORY_QUEUE_NAME,JSON.stringify(payload_1));
-         					
-         await getSubscriptionTierByName(DEFAULT_SUBSCRIPTION_PLAN, async callBack => {
-	    if(callBack && callBack.length > 0){
-	        const { reference_number, name, monthly_cost, yearly_cost, entry, credits_per_action } = callBack[0];
-		const regex = /\{(\d+)\}/;
-		const creditValue = entry.match(regex);
-                if(creditValue){
-		    const currentDate = new Date();
-		    const expired_at = addDays(currentDate, Number(SUBSCRIPTION_VALIDITY_IN_DAYS));     
-		    const walletPayload = { amount:0,credit_points_bought:creditValue[1],plan_name:name,tier_reference_number:reference_number,subscription_plan:'d',expired_at };
-		    const walletResp = await addWalletBalanceByReferenceNumber(reference_number_in,walletPayload);
-		    const userPayload = { tier_reference_number:reference_number };
-		    const planResp = await addSubscriptionPlanByReferenceNumber(reference_number_in,userPayload);    
-		}
-	    }
-         });
-	
-	 //-.referral code.
-         const [okReferral,responseReferral] = await postPayloadWithJsonPayload(`${APPLICATION_BASE_URL}/api/v1/processReferralCode`,{ email, reference_number, referral_code, device_fingerprint });
-         console.log(responseReferral);
-     
-         if(walletDetails[0]){			
-            res.status(201).json({
-                success: true,
-                error: false,
-                data: profileCallback,
-                access_token: access_token,
-                refresh_token: refresh_token,
-		walletData: walletDetails[0], 		
-                message: resp[1]
-            });
+        if (!isEmailValid) {
+            res.status(400).json({ success: false, error: true, message: 'Invalid email.' });
             return;
-	 }
-         const payload_2 = {
-            channel_name: 'error_log',
-            email: email,
-            reference_number: reference_number,
-            error_code: 400,
-            error_message: `ERROR BLOCKCHAIN WALLET CREATION HAS FAILED: ${walletDetails[1]}`
-         };
-         await sendMessageToQueue(MEMORY_QUEUE_NAME,JSON.stringify(payload_2));
-	 res.status(201).json({
-             success: true,
-             error: false,
-             data: profileCallback,
-             access_token: access_token,
-             refresh_token: refresh_token,
-             message: `${resp[1]} | Wallet API has failed: ${walletDetails[1]}`
-         });	
-      }); 
-   }catch(e){
-       if(e){
-           res.status(400).json({
-               success: false,
-               error: true,
-               message: e?.response || e?.message || e?.response?.message || "Something wrong has happpened."
-           });
-       } 
-   } 
+        }
+
+        if (found_email !== 0) {
+            res.status(200).json({ success: false, error: true, message: 'Email already exists' });
+            return;
+        }
+
+        const google_user_id = 0;
+        const reference_number = 'AXR_' + uuidv4();
+        const profile_picture_url = null;
+        const access_token = accessToken({ email: email });
+        const refresh_token = refreshToken({ email: email });
+        const newUser = { reference_number, google_user_id, username, email, profile_picture_url, access_token, refresh_token, password: hashedPassword };
+
+        const otpCode = generateRandomOtp();
+        const response = await sendGridEmailOtp(email, otpCode);
+
+        if (response[0]) {
+            // EXTREME SPEED: Save OTP and create user in parallel
+            const [otpSave, createResp] = await Promise.all([
+                saveMailOtp({ phone: 0, email: email, message: response[2] }),
+                createUser(newUser)
+            ]);
+
+            if (createResp[0]) {
+                const createdUser = createResp[2];
+                // Format user data to array for consistency
+                const profileData = [createdUser.toJSON ? createdUser.toJSON() : createdUser];
+
+                res.status(201).json({
+                    success: true,
+                    error: false,
+                    data: profileData,
+                    access_token: access_token,
+                    refresh_token: reference_number,
+                    message: createResp[1]
+                });
+            } else {
+                res.status(500).json({
+                    success: false,
+                    error: true,
+                    message: createResp[1]
+                });
+            }
+        } else {
+            res.status(400).json({
+                success: false,
+                error: true,
+                message: response[1] || 'Invalid token'
+            });
+        }
+    } catch (e) {
+        console.error('UserSignUp Error:', e);
+        res.status(400).json({
+            success: false,
+            error: true,
+            message: "Something wrong has happened."
+        });
+    }
 };

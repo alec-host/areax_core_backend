@@ -75,7 +75,7 @@ module.exports.generateOtpEmailHtml = (code, year) => {
         <p>Hello,</p>
         <p>We received a request to verify your identity. Please use the following code to complete your verification process:</p>
         <div class="otp-code">${code}</div>
-	<p class="copy-instruction">Copy the code above</p>
+	<!--p class="copy-instruction">Copy the code above</p-->
         <p><strong>Important:</strong> If you didn’t request this code, you can safely ignore this email.</p>
         <p>Never share this verification code with anyone. Our team will never ask you for it.</p>
       </div>

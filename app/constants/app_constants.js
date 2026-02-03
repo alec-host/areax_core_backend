@@ -6,8 +6,8 @@ module.exports = {
     JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
     JWT_ISSUER: process.env.JWT_ISSUER,
     JWT_AUDIENCE: process.env.JWT_AUDIENCE,
-    ACCESS_TTL: process.env.ACCESS_TTL,
-    REFRESH_TTL: process.env.REFRESH_TTL,
+    ACCESS_TTL: process.env.ACCESS_TTL || '15m',
+    REFRESH_TTL: process.env.REFRESH_TTL || '14d',
     DATABASE_NAME: process.env.DATABASE_NAME,
     DATABASE_USER: process.env.DATABASE_USER,
     DATABASE_HOST: process.env.DATABASE_HOST,
@@ -20,6 +20,7 @@ module.exports = {
     DATABASE_PORT_TWO: process.env.DATABASE_PORT_TWO,
     DATABASE_SSL_TWO: process.env.DATABASE_SSL_TWO,	
     DATABASE_PASS_TWO: process.env.DATABASE_PASS_TWO,
+    DATABASE_DIALECT: process.env.DATABASE_DIALECT,	
     MONGO_USER: process.env.MONGO_USER,
     MONGO_PASS: process.env.MONGO_PASS,
     MONGO_PORT: process.env.MONGO_PORT,
@@ -84,5 +85,8 @@ module.exports = {
     SENDGRID_SENDER_EMAIL: process.env.SENDGRID_SENDER_EMAIL,
     ENCRYPTION_KEY: process.env.ENCRYPTION_KEY,
     IV_LENGTH: process.env.IV_LENGTH,
-    FINGERPRINT_KEY: process.env.FINGERPRINT_KEY
+    FINGERPRINT_KEY: process.env.FINGERPRINT_KEY,
+    WEEPOINTS_API_KEY: process.env.WEEPOINTS_API_KEY,	
+    API_GATEWAY_SECRET: process.env.API_GATEWAY_SECRET,	
+    PRODUCTIONLOG_DIR: process.env.PRODUCTIONLOG_DIR,	
 };

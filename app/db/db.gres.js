@@ -17,7 +17,7 @@ const sequelize = new Sequelize(
     host: DATABASE_HOST,
     port: Number(DATABASE_PORT) || 5432,
     dialect: 'postgres',
-    logging: false, // set to console.log for SQL debugging
+    logging: console.log, // set to console.log for SQL debugging
     pool: {
       max: 10,
       min: 0,

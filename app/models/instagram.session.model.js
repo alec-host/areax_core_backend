@@ -2,54 +2,55 @@ const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize, Sequelize) => {
     const InstagramSession = sequelize.define('InstagramSession', {
-    _id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-    },
-    username: {
-        type: DataTypes.STRING(60),
-        unique: true,
-        allowNull: false,
-        collate: 'utf8mb4_general_ci',
-    },  
-    session: {
-        type: DataTypes.TEXT,
-        allowNull: false,
-        collate: 'utf8mb4_general_ci',
-    },           
-    created_at: {
-        type: DataTypes.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-    },
-    updated_at: {   
-        type: DataTypes.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-        onUpdate: Sequelize.literal('CURRENT_TIMESTAMP')
-    },
-    is_revoked: {
-        type: DataTypes.INTEGER,
-        defaultValue: 0
-    }    
-    }, {
-    indexes: [
-        {
-            name: 'username_index',
-            fields: ['username'],
-            using: 'BTREE',
+        _id: {
+            type: DataTypes.BIGINT,
+            primaryKey: true,
+            autoIncrement: true,
+            field: '_id'		
         },
-        {
-            name: 'is_revoked_index',
-            fields: ['is_revoked'],
-            using: 'BTREE',
+        username: {
+            type: DataTypes.STRING(65),
+            allowNull: false
+        },
+        session: {
+            type: DataTypes.TEXT, // Original was TEXT, keeping as TEXT or JSON if widely supported. Agnostic strategy prefers JSON for structured data but if this is just a string, TEXT IS SAFER for now to match 'original'.
+            allowNull: false
+        },
+        created_at: {
+            type: DataTypes.DATE,
+            defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        },
+        updated_at: {
+            type: DataTypes.DATE,
+            defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        },
+        is_revoked: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
         }
-    ],
-    timestamps: false,
-    tableName: 'tbl_instagram_session',
-    collate: 'utf8mb4_general_ci',
-    engine: 'InnoDB',
+    }, {
+        indexes: [
+            {
+                name: 'username_index',
+                fields: ['username'],
+                using: 'BTREE',
+            },
+            {
+                name: 'is_revoked_index',
+                fields: ['is_revoked'],
+                using: 'BTREE',
+            }
+        ],
+        timestamps: false,
+	id: false,    
+        tableName: 'tbl_instagram_session', // Singular 'session' as per original
+        hooks: {
+            beforeUpdate: (instance) => {
+                instance.updated_at = new Date();
+            }
+        }
     });
 
     return InstagramSession;
 };
+

@@ -4,56 +4,59 @@ const { validationResult } = require("express-validator");
 const { getUserAcessTokenByEmail } = require("../user/get.user.access.token.by.email");
 const { getUserSignedInStatusCountByEmail } = require("../user/get.user.signed.in.status.by.email");
 
-exports.SignedInStatus = async(req,res) => {
-    const { email,reference_number } = req.body;
+exports.SignedInStatus = async (req, res) => {
+    const { email, reference_number } = req.body;
     const errors = validationResult(req);
-    if(!errors.isEmpty()){
-	res.status(422).json({ success: false, error: true, message: errors.array() });    
-	return;
+    if (!errors.isEmpty()) {
+        res.status(422).json({ success: false, error: true, message: errors.array() });
+        return;
     }
-    try{
-        const email_found = await findUserCountByEmail(email);
-        if(email_found === 0){
-            res.status(404).json({
+    try {
+        // EXTREME SPEED: Run existence checks, status, and token fetch in parallel
+        const [email_found, reference_number_found, signed_in_status, access_token] = await Promise.all([
+            findUserCountByEmail(email),
+            findUserCountByReferenceNumber(reference_number),
+            getUserSignedInStatusCountByEmail(email),
+            getUserAcessTokenByEmail(email)
+        ]);
+
+        if (email_found === 0) {
+            return res.status(404).json({
                 success: false,
                 error: true,
                 message: "Email not found."
-            });		
-            return;		
-	}
-        const reference_number_found = await findUserCountByReferenceNumber(reference_number);
-        if(reference_number_found === 0){
-            res.status(404).json({
+            });
+        }
+
+        if (reference_number_found === 0) {
+            return res.status(404).json({
                 success: false,
                 error: true,
                 message: "Reference number not found."
-            });		
-            return;		
-	}
-        const signed_in_status = await getUserSignedInStatusCountByEmail(email);
-        if(signed_in_status === 1){
-	    const access_token = await getUserAcessTokenByEmail(email);
+            });
+        }
+
+        if (signed_in_status === 1) {
             res.status(200).json({
                 success: true,
                 error: false,
-	        data: [{access_token: access_token,reference_number: reference_number}], 			
+                data: [{ access_token: access_token, reference_number: reference_number }],
                 message: "User is logged in."
-            }); 
-        }else{
+            });
+        } else {
             res.status(400).json({
                 success: false,
                 error: true,
-		data:[],		
+                data: [],
                 message: "User is not logged in."
-            });                
-        }
-    }catch(e){
-        if(e){
-            res.status(500).json({
-                success: false,
-                error: true,
-                message: e?.response?.message || e?.message || 'Something wrong has happened'
             });
         }
-    }   
+    } catch (e) {
+        res.status(500).json({
+            success: false,
+            error: true,
+            message: e?.response?.message || e?.message || 'Something wrong has happened'
+        });
+    }
 };
+

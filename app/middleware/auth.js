@@ -29,7 +29,8 @@ const verifyToken = (req, res, next) => {
                });
            }
 
-           const resp = jwtVerifyToken(token);	
+           const resp = jwtVerifyToken(token);
+
            if(!resp[0]){
                return res.status(401).json({
                    success: false,
@@ -37,7 +38,10 @@ const verifyToken = (req, res, next) => {
                    message: resp[1]
                });           
            }
-           req.user = req[2];		
+
+           req.user = req[1];	
+	   req.decoded = resp[1]; 
+
 	   return next();	
         } catch (err) {
 	    //console.error(err.message);	

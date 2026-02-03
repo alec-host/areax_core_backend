@@ -69,7 +69,7 @@ function updateFingerprints(instance) {
 
 module.exports = (sequelize, Sequelize) => {
   const User = sequelize.define('User', {
-    _id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    _id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true, field: '_id' },
 
     reference_number: { type: DataTypes.STRING(65), unique: true, allowNull: false, unique: 'uniq_tbl_areax_users_reference_number', },
 
@@ -191,6 +191,7 @@ module.exports = (sequelize, Sequelize) => {
       { name: 'idx_users_lat_lon', fields: ['lat', 'lon'] } // for bbox prefilter
     ],
     timestamps: false,
+    id: false,	  
     tableName: 'tbl_areax_users',
 
     hooks: {

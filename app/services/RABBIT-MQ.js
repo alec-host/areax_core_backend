@@ -2,30 +2,81 @@ const amqp = require("amqplib");
 
 const { RABBITMQ_URL,RABBITMQ_EXCHANGE,RABBITMQ_ROUTING_KEY } = require("../constants/app_constants.js");
 
-module.exports.sendMessageToQueue_OLD = async(queueName, message) => {
-    amqp.connect('amqp://localhost', (error0,connection) => {
-        if(error0){
-            console.error('ERROR: ',error0);
-	    return null;
-        }	    
-	connection.createChannel((error1, channel) => {
-	    if(error1){
-                console.error('ERROR: ',error1);
-	        return null;
-	    }
-	    channel.assertQueue(queueName, { durable: false });
-            const options = {
-                expiration: '300000'
-	    };		
-	    channel.sendToQueue(queueName, Buffer.from(message), options);
-	    console.log(`Sent message to ${queueName}: ${message} `);	
-	});
-        setTimeout(()=> {
-            connection.close();
-	}, 500);		
-    });
+let connection = null;
+let channel = null;
+
+/**
+ * Internal helper to ensure we have a single, healthy connection/channel.
+ */
+async function getChannel() {
+    if (channel) return channel; // Return cached channel if it exists
+    try {
+        connection = await amqp.connect(RABBITMQ_URL);
+        channel = await connection.createChannel();
+
+        // Listen for crashes/closes to reset the cache
+        connection.on('error', (err) => { channel = null; connection = null; });
+        connection.on('close', () => { channel = null; connection = null; });
+
+        return channel;
+    } catch (error) {
+        channel = null;
+        connection = null;
+        throw error;
+    }
+}
+
+module.exports.sendMessageToQueue = async(queueName, message) => {
+    try {
+        const chan = await getChannel();
+
+        await chan.assertExchange(RABBITMQ_EXCHANGE, 'topic', { durable: true });
+
+        // Use durable: false to match your existing server settings
+        await chan.assertQueue(queueName, { durable: false });
+        await chan.bindQueue(queueName, RABBITMQ_EXCHANGE, RABBITMQ_ROUTING_KEY);
+
+        const payload = typeof message === 'object' ? JSON.stringify(message) : message;
+
+        const options = {
+            expiration: '300000',
+            contentType: 'application/json'
+        };
+
+        chan.publish(RABBITMQ_EXCHANGE, RABBITMQ_ROUTING_KEY, Buffer.from(payload), options);
+        console.log(`[✔] Sent to ${queueName}`);
+    } catch (error) {
+        console.error('Error in sendMessageToQueue:', error.message);
+    }
 };
 
+module.exports.readMessageFromQueue = async(routingKey, queueName) => {
+    try {
+        const chan = await getChannel();
+
+        await chan.assertExchange(RABBITMQ_EXCHANGE, 'topic', { durable: true });
+        await chan.assertQueue(queueName, { durable: false });
+        await chan.bindQueue(queueName, RABBITMQ_EXCHANGE, routingKey);
+
+        // channel.get is for polling. For high volume, consider channel.consume
+        const msg = await chan.get(queueName, { noAck: false });
+
+        if (msg) {
+            const messageContent = msg.content.toString();
+            chan.ack(msg); // Tell RabbitMQ we safely received it
+            
+            console.log(`[✔] Received from ${queueName}`);
+            return messageContent;
+        } 
+        
+        return null;
+    } catch (error) {
+        console.error("ERROR in readMessageFromQueue:", error);
+        throw error;
+    }
+};
+
+/*
 module.exports.sendMessageToQueue = async(queueName, message) => {
     try {
         const connection = await amqp.connect(RABBITMQ_URL);
@@ -55,58 +106,6 @@ module.exports.sendMessageToQueue = async(queueName, message) => {
     } catch (error) {
         console.error('Error connecting to RabbitMQ:', error.message);
     }
-};
-
-module.exports.readMessageFromQueue_OLD = async(queueName) => {
-    return new Promise((resolve, reject) => {	
-    	amqp.connect(RABBITMQ_URL,(error0, connection) => { 
-	    if(error0){ 
-	       console.error('ERROR: ',error0);
-               return reject(error0);		
-	    }
-	    connection.createChannel((error1, channel) => { 
-	        if(error1){ 
-	           console.error('ERROR: ',error1); 
-	           return reject(error1);
-	        }    
-	        channel.assertQueue(queueName, { durable: false }); 
-	        console.log(`Waiting for messages in queue: ${queueName}`);
-
-	        channel.get(queueName,{ noAck: false }, (error2, msg) => { 
-                    if(error2){ 
-			connection.close(); 
-			return reject(error2); 
-		    }			
-		    if(msg !== null){ 
-		        const messageContent = msg?.content?.toString(); 
-		        if(messageContent){	    
-	                    console.log(`Received message: ${messageContent}`);
-
-			    channel.ack(msg);
-		        
-			    channel.purgeQueue(queueName, (error3, ok) => {
-                                if(error3){
-				    console.error(`Error purging queue: ${error3}`);
-			        }else{
-                                    console.log(`Queue purged: ${ok.messageCount} messages deleted`);
-			        }
-			    });
-			    setTimeout(() => {    
-			        connection.close();    
-		                resolve(messageContent);
-			    },500);
-			}else{
-                            resolve(null);
-			}
-		    }else{
-			console.log("No message in the queue");
-			connection.close();    
-			reject(null);
-		    }
-	        },{ noAck: false });
-	    }); 
-	}); 
-    });
 };
 
 module.exports.readMessageFromQueue = async(routingKey,queueName) => {
@@ -153,3 +152,4 @@ module.exports.readMessageFromQueue = async(routingKey,queueName) => {
         throw error;
     }
 };
+*/

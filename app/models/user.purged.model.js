@@ -1,15 +1,15 @@
 const { DataTypes } = require('sequelize');
 
-// Define the User model
 module.exports = (sequelize, Sequelize) => {
    const UserPurged = sequelize.define('UserPurged', {
       _id: {
-         type: DataTypes.INTEGER,
+         type: DataTypes.BIGINT,
          primaryKey: true,
-         autoIncrement: true
+         autoIncrement: true,
+	 field: '_id'     
       },
       reference_number: {
-         type: DataTypes.STRING(65),
+         type: DataTypes.STRING(145),
          allowNull: false
       },
       google_user_id: {
@@ -17,7 +17,7 @@ module.exports = (sequelize, Sequelize) => {
          allowNull: false
       },
       email: {
-         type: DataTypes.STRING(65),
+         type: DataTypes.STRING(145),
          allowNull: false
       },
       phone: {
@@ -47,35 +47,40 @@ module.exports = (sequelize, Sequelize) => {
       },
       updated_at: {
          type: DataTypes.DATE,
-         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-         onUpdate: Sequelize.literal('CURRENT_TIMESTAMP')
+         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
       email_verified: {
-         type: DataTypes.INTEGER,
-         defaultValue: 0
+         type: DataTypes.BOOLEAN,
+         defaultValue: false
       },
       phone_verified: {
-         type: DataTypes.INTEGER,
-         defaultValue: 0
+         type: DataTypes.BOOLEAN,
+         defaultValue: false
       },
       is_online: {
-         type: DataTypes.INTEGER,
-         defaultValue: 0
+         type: DataTypes.BOOLEAN,
+         defaultValue: false
       },
       is_deleted: {
-         type: DataTypes.INTEGER,
-         defaultValue: 0
+         type: DataTypes.BOOLEAN,
+         defaultValue: false
       }
-      },{
-         indexes: [{
-            name: 'idx_areax_users',
-            unique: false,
-            fields : ['reference_number','phone','email','email_verified','phone_verified','is_online','is_deleted'] 
-        }],
-         // Define table options
-         timestamps: false,
-         tableName: 'tbl_areax_purged_users'
-      });
+   }, {
+      indexes: [{
+         name: 'idx_areax_purgeed_users',
+         unique: false,
+         fields: ['reference_number', 'phone', 'email', 'email_verified', 'phone_verified', 'is_online', 'is_deleted']
+      }],
+      timestamps: false,
+      id: false,	   
+      tableName: 'tbl_areax_purged_users',
+      hooks: {
+         beforeUpdate: (instance) => {
+            instance.updated_at = new Date();
+         }
+      }
+   });
 
-      return UserPurged;
+   return UserPurged;
 };
+

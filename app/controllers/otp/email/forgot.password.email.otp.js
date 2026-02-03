@@ -28,9 +28,9 @@ exports.ForgetPasswordEmailOtp = async(req,res) => {
        const otpCode = generateRandomOtp();   
        const _accessToken = accessToken({ email:email});
        const _refreshToken = refreshToken({ email:email });    
-       const waitTimeInMinutes = await otpWaitTimeInMinutes(email);
+       const waitTimeInMinutes = await otpWaitTimeInMinutes(email); 
        if(waitTimeInMinutes !== null){
-           const delay = JSON.stringify(waitTimeInMinutes);
+           const delay = JSON.stringify(waitTimeInMinutes); 
            if(JSON.parse(delay).time_in_minutes >= 1){
               const response = await sendGridEmailOtp(email,otpCode);
               if(!response[0]){

@@ -15,44 +15,44 @@ const signUpValidator = [
     body('username', 'Missing: name must be checked').not().isEmpty(),
     body('email', 'Missing: email must be checked').not().isEmpty(),
     body('email', 'Invalid email').isEmail(),
-    body('password', 'The minimum password length is 6 characters').isLength({min: 6}),
+    body('password', 'The minimum password length is 6 characters').isLength({ min: 6 }),
     // referral_code is optional but must be a string if present
     body('referral_code')
-      .optional()
-      .isString()
-      .withMessage('Referral code must be a string'),
+        .optional()
+        .isString()
+        .withMessage('Referral code must be a string'),
     // device_fingerprint is optional but must be a string if present
     body('device_fingerprint')
-      .optional()
-      .isString()
-      .withMessage('Device fingerprint must be a string'),
+        .optional()
+        .isString()
+        .withMessage('Device fingerprint must be a string'),
     // custom rule: if referral_code is provided, device_fingerprint must also be provided
     body('referral_code').custom((value, { req }) => {
-      if(value && !req.body.device_fingerprint) {
-         throw new Error('Device fingerprint is required when referral_code is provided');
-      }
-      return true;
-    })	
+        if (value && !req.body.device_fingerprint) {
+            throw new Error('Device fingerprint is required when referral_code is provided');
+        }
+        return true;
+    })
 ];
 
 const googleSignUpValidator = [
     body('idToken', 'Missing: idToken must be checked').not().isEmpty(),
     body('referral_code')
-      .optional()
-      .isString()
-      .withMessage('Referral code must be a string'),
+        .optional()
+        .isString()
+        .withMessage('Referral code must be a string'),
     // device_fingerprint is optional but must be a string if present
     body('device_fingerprint')
-      .optional()
-      .isString()
-      .withMessage('Device fingerprint must be a string'),
+        .optional()
+        .isString()
+        .withMessage('Device fingerprint must be a string'),
     // custom rule: if referral_code is provided, device_fingerprint must also be provided
     body('referral_code').custom((value, { req }) => {
-      if(value && !req.body.device_fingerprint) {
-         throw new Error('Device fingerprint is required when referral_code is provided');
-      }
-      return true;
-    })	
+        if (value && !req.body.device_fingerprint) {
+            throw new Error('Device fingerprint is required when referral_code is provided');
+        }
+        return true;
+    })
 ];
 
 const googleSignInValidator = [
@@ -62,7 +62,7 @@ const googleSignInValidator = [
 const signInValidator = [
     body('email', 'Email cannot be Empty').not().isEmpty(),
     body('email', 'Invalid email').isEmail(),
-    body('password', 'The minimum password length is 6 characters').isLength({min: 6}),
+    body('password', 'The minimum password length is 6 characters').isLength({ min: 6 }),
 ];
 
 const signOutValidator = [
@@ -71,35 +71,35 @@ const signOutValidator = [
 ];
 
 const healthCheckValidator = [
-    body('word','Word cannot be Empty').not().isEmpty(),
+    body('word', 'Word cannot be Empty').not().isEmpty(),
 ];
 
 const confirmEmailValidator = [
     body('email', 'Email cannot be Empty').not().isEmpty(),
-    body('email', 'Invalid email').isEmail(), 
+    body('email', 'Invalid email').isEmail(),
     body('reference_number', 'Reference number must be provided').not().isEmpty(),
-    body('otp', 'The minimum OTP length is 6 characters').isLength({min:6}),
+    body('otp', 'The minimum OTP length is 6 characters').isLength({ min: 6 }),
 ];
 
 const confirmPhoneValidator = [
     body('phone', 'Phone cannot be Empty').not().isEmpty(),
     body('reference_number', 'Reference number must be provided').not().isEmpty(),
-    body('otp', 'The minimum OTP length is 6 characters').isLength({min:6}),
+    body('otp', 'The minimum OTP length is 6 characters').isLength({ min: 6 }),
 ];
 
 const addPhoneValidator = [
     body('phone', 'Phone must be provided').not().isEmpty(),
     //body('phone', 'Invalid mobile phone').isMobilePhone(),
     body('email', 'Email cannot be Empty').not().isEmpty(),
-    body('email', 'Invalid email').isEmail(), 
+    body('email', 'Invalid email').isEmail(),
     body('reference_number', 'Reference number must be provided').not().isEmpty(),
 ];
-  
+
 const verifyPhoneValidator = [
     body('phone', 'Phone must be provided').not().isEmpty(),
     //body('phone', 'Invalid mobile phone').isMobilePhone(),
     body('email', 'Email cannot be Empty').not().isEmpty(),
-    body('email', 'Invalid email').isEmail(), 
+    body('email', 'Invalid email').isEmail(),
     body('reference_number', 'Reference number must be provided').not().isEmpty(),
 ];
 
@@ -108,43 +108,43 @@ const updateProfileValidator = [
     body('email', 'Invalid email').isEmail(),
     body('reference_number', 'Reference number must be provided').not().isEmpty(),
     body('phone')
-      .optional()
-      .isString().withMessage('Phone must be a provided'),
+        .optional()
+        .isString().withMessage('Phone must be a provided'),
     body('country_code')
-      .optional()
-      .isString().withMessage('Country Code must be a provided'),
+        .optional()
+        .isString().withMessage('Country Code must be a provided'),
     body('username')
-      .optional()
-      .isString().withMessage('Username must be a provided'),
+        .optional()
+        .isString().withMessage('Username must be a provided'),
     body('caption')
-      .optional()
-      .isString().withMessage('Caption must be a provided'),
+        .optional()
+        .isString().withMessage('Caption must be a provided'),
     body('country')
-      .optional()
-      .isString().withMessage('Country must be a provided'),
+        .optional()
+        .isString().withMessage('Country must be a provided'),
     body('city')
-      .optional()
-      .isString().withMessage('City must be a provided'),//privacy_status
+        .optional()
+        .isString().withMessage('City must be a provided'),//privacy_status
     body('privacy_status')
-      .optional()
-      .isIn(['public', 'private', 'anonymous'])
-      .withMessage('Privacy status must be one of: public, private, or anonymous')
-      .default('public')	
+        .optional()
+        .isIn(['public', 'private', 'anonymous'])
+        .withMessage('Privacy status must be one of: public, private, or anonymous')
+        .default('public')
 ];
 
 const getProfileValidator = [
     query('email', 'Email cannot be Empty').not().isEmpty(),
-    query('email', 'Invalid email').isEmail(), 
+    query('email', 'Invalid email').isEmail(),
     query('reference_number', 'Reference number must be provided').not().isEmpty(),
 ];
 
-const requestEmailOtpValidator  = [
+const requestEmailOtpValidator = [
     body('email', 'Email cannot be Empty').not().isEmpty(),
-    body('email', 'Invalid email').isEmail(), 
+    body('email', 'Invalid email').isEmail(),
     body('reference_number', 'Reference number must be provided').not().isEmpty(),
 ];
 
-const requestPhoneOtpValidator  = [
+const requestPhoneOtpValidator = [
     body('phone', 'Phone cannot be Empty').not().isEmpty(),
     body('reference_number', 'Reference number must be provided').not().isEmpty(),
 ];
@@ -154,7 +154,7 @@ const instagramAuthValidator = [
     body('email', 'Invalid email').isEmail(),
     body('reference_number', 'Reference number must be provided').not().isEmpty(),
     body('operation_type', 'Operation type must be provided').not().isEmpty(),
-    body('client_type', 'Client type must be provided i.e. web = web or app = mobile').not().isEmpty(),	
+    body('client_type', 'Client type must be provided i.e. web = web or app = mobile').not().isEmpty(),
 ];
 
 const tiktokAuthValidator = [
@@ -185,19 +185,19 @@ const formDataGaurdianValidator = [
     check('email', 'Email cannot be Empty').not().isEmpty(),
     check('email', 'Invalid email').isEmail(),
     check('reference_number', 'Reference number must be provided').not().isEmpty(),
-    check('guardian_name', 'Guardian name must be provided').not().isEmpty(),	
+    check('guardian_name', 'Guardian name must be provided').not().isEmpty(),
 ];
 
 const tokenIdValidator = [
     check('email', 'Email cannot be Empty').not().isEmpty(),
-    check('email', 'Invalid email').isEmail(), 
+    check('email', 'Invalid email').isEmail(),
     check('reference_number', 'Reference number must be provided').not().isEmpty(),
     check('token_id', 'Token id must be provided').not().isEmpty(),
 ];
 
 const blockchainWalletValidator = [
     body('email', 'Email cannot be Empty').not().isEmpty(),
-    body('email', 'Invalid email').isEmail(), 
+    body('email', 'Invalid email').isEmail(),
     body('reference_number', 'Reference number must be provided').not().isEmpty(),
     body('wallet_address', 'Wallet address must be provided').not().isEmpty(),
     body('private_key', 'Private key must be provided').not().isEmpty(),
@@ -207,11 +207,11 @@ const forgetPasswordValidator = [
     body('reference_number', 'Missing: reference_number must be checked').not().isEmpty(),
     body('email', 'Missing: email must be checked').not().isEmpty(),
     body('email', 'Invalid email').isEmail(),
-    body('otp', 'OTP must be checked').not().isEmpty(),	
+    body('otp', 'OTP must be checked').not().isEmpty(),
     body('password', 'Missing: password must be checked').not().isEmpty(),
-    body('password', 'The minimum password length is 6 characters').isLength({min: 6}),
+    body('password', 'The minimum password length is 6 characters').isLength({ min: 6 }),
     body('confirm_password', 'Missing: confirm password must be checked').not().isEmpty(),
-    body('confirm_password', 'The minimum confirm password length is 6 characters').isLength({min: 6}),
+    body('confirm_password', 'The minimum confirm password length is 6 characters').isLength({ min: 6 }),
 ];
 
 const passwordChangeValidator = [
@@ -219,11 +219,11 @@ const passwordChangeValidator = [
     body('email', 'Missing: email must be checked').not().isEmpty(),
     body('email', 'Invalid email').isEmail(),
     body('old_password', 'Missing: old password must be checked').not().isEmpty(),
-    body('old_password', 'The minimum old password length is 6 characters').isLength({min: 6}),
+    body('old_password', 'The minimum old password length is 6 characters').isLength({ min: 6 }),
     body('new_password', 'Missing: new password must be checked').not().isEmpty(),
-    body('new_password', 'The minimum new password length is 6 characters').isLength({min: 6}),	
+    body('new_password', 'The minimum new password length is 6 characters').isLength({ min: 6 }),
     body('confirm_new_password', 'Missing: confirm new password must be checked').not().isEmpty(),
-    body('confirm_new_password', 'The minimum confirm new password length is 6 characters').isLength({min: 6}),
+    body('confirm_new_password', 'The minimum confirm new password length is 6 characters').isLength({ min: 6 }),
 ];
 
 const s3BucketValidator = [
@@ -237,18 +237,18 @@ const getIgUserIdValidator = [
 
 const getUsersLocationValidator = [
     query('start', 'Missing: start must be provided').not().isEmpty(),
-    query('limit', 'Missing: limit must be provided').not().isEmpty(),	
+    query('limit', 'Missing: limit must be provided').not().isEmpty(),
 ];
 
 const deleteTierValidator = [
     param('reference_number').exists().withMessage('Missing: reference_number must be provided'),
-    (res,req,next) => {
+    (res, req, next) => {
         const errors = validationResult(req);
-	if(!errors.isEmpty()){
-	    return res.status(400).json({ success: false, error: true, message: errors.array() });	
-	}
-	next();    
-    }	
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ success: false, error: true, message: errors.array() });
+        }
+        next();
+    }
 ];
 
 const getTierValidator = [
@@ -256,94 +256,124 @@ const getTierValidator = [
 ];
 
 const createTierValidator = [
-   body('name', 'name cannot be Empty').not().isEmpty(),
-   body('monthly_cost', 'monthly_cost cannot be Empty').not().isEmpty(),
-   body('yearly_cost', 'yearly_cost cannot be Empty').not().isEmpty(),
-   body('campaign_specific_price', 'campaign_specific_price cannot be Empty').not().isEmpty(),
-   body('entry', 'entry cannot be Empty').not().isEmpty(),
-   body('benefits', 'benefits cannot be Empty').not().isEmpty(),
-   body('credits_per_action', 'credits_per_action cannot be Empty').not().isEmpty(),
+    body('name', 'name cannot be Empty').not().isEmpty(),
+    body('monthly_cost', 'monthly_cost cannot be Empty').not().isEmpty(),
+    body('yearly_cost', 'yearly_cost cannot be Empty').not().isEmpty(),
+    body('campaign_specific_price', 'campaign_specific_price cannot be Empty').not().isEmpty(),
+    body('entry', 'entry cannot be Empty').not().isEmpty(),
+    body('benefits', 'benefits cannot be Empty').not().isEmpty(),
+    body('credits_per_action', 'credits_per_action cannot be Empty').not().isEmpty(),
 ];
 
 const addSubscriptonPlanValidator = [
-   body('email', 'Missing: email must be provided').not().isEmpty(),	
-   body('reference_number', 'Missing: reference_number must be provided').not().isEmpty(),
-   body('tier_reference_number', 'Missing: tier_reference_number must be provided').not().isEmpty(),
+    body('email', 'Missing: email must be provided').not().isEmpty(),
+    body('reference_number', 'Missing: reference_number must be provided').not().isEmpty(),
+    body('tier_reference_number', 'Missing: tier_reference_number must be provided').not().isEmpty(),
 ];
 
 const getSubscriptionPlanValidator = [
-   body('email', 'Missing: email must be provided').not().isEmpty(),
-   body('reference_number', 'Missing: reference_number must be provided').not().isEmpty(),
-   body('tier_reference_number', 'Missing: tier_reference_number must be provided').not().isEmpty(),
-   body('payment_plan', 'Missing: payment_plan must be provided').not().isEmpty(),
+    body('email', 'Missing: email must be provided').not().isEmpty(),
+    body('reference_number', 'Missing: reference_number must be provided').not().isEmpty(),
+    body('tier_reference_number', 'Missing: tier_reference_number must be provided').not().isEmpty(),
+    body('payment_plan', 'Missing: payment_plan must be provided').not().isEmpty(),
 ];
 
 const rotateTokenValidator = [
     body('email', 'Email cannot be Empty').not().isEmpty(),
     body('email', 'Invalid email').isEmail(),
     //body('reference_number', 'Reference number must be provided').not().isEmpty(),
-    body('old_refresh_token', 'Old refresh token number must be provided').not().isEmpty(),	
+    body('old_refresh_token', 'Old refresh token number must be provided').not().isEmpty(),
 ];
 
 const userAuthenticationValidator = [
     body('email', 'Missing: email must be checked').not().isEmpty(),
     body('email', 'Invalid email').isEmail(),
-    body('password', 'The minimum password length is 6 characters').isLength({min: 6}),
+    body('password', 'The minimum password length is 6 characters').isLength({ min: 6 }),
 ];
 
 const emailValidator = [
-  body('email')
-    .exists({ checkFalsy: true })
-    .withMessage('Email is required')
-    .isEmail()
-    .withMessage('Invalid email format')
-    .normalizeEmail() // optional: trims and lowercases
+    body('email')
+        .exists({ checkFalsy: true })
+        .withMessage('Email is required')
+        .isEmail()
+        .withMessage('Invalid email format')
+        .normalizeEmail() // optional: trims and lowercases
 ];
 
 const processReferralCodeValidator = [
     body('email', 'Missing: email must be checked').not().isEmpty(),
     body('email', 'Invalid email').isEmail(),
-    // referral_code is optional but must be a string if present
-    body('referral_code')
-      .isString()
-      .withMessage('Referral code must be a string'),
-    // device_fingerprint is optional but must be a string if present
-    body('device_fingerprint')
-      .isString()
-      .withMessage('Device fingerprint must be a string'),
-    // custom rule: if referral_code is provided, device_fingerprint must also be provided
+    body('referral_code', 'Referral code must be a string').isString(),
+    body('device_fingerprint', 'Device fingerprint must be a string').isString(),
     body('referral_code').custom((value, { req }) => {
-      if(value && !req.body.device_fingerprint) {
-         throw new Error('Device fingerprint is required when referral_code is provided');
-      }
-      return true;
+        if (value && !req.body.device_fingerprint) {
+            throw new Error('Device fingerprint is required when referral_code is provided');
+        }
+        return true;
     })
+];
+
+const generateReferralCodeValidator = [
+    body('email', 'Email cannot be Empty').not().isEmpty(),
+    body('email', 'Invalid email').isEmail(),
+    body('reference_number', 'Reference number must be provided').not().isEmpty(),
+    body('invitee_name').optional().isString(),
+    body('invitee_email').optional({ nullable: true }).isEmail().withMessage('Invalid email'),
+    body('invitee_mobile_number').optional({ nullable: true }).isString()	
+];
+
+const getUserInvitesValidator = [
+    query('email', 'Email cannot be Empty').not().isEmpty(),
+    query('email', 'Invalid email').isEmail(),
+    query('reference_number', 'Reference number must be provided').not().isEmpty()
+];
+
+const withdrawInviteValidator = [
+    body('email', 'Email cannot be Empty').not().isEmpty(),
+    body('email', 'Invalid email').isEmail(),
+    body('reference_number', 'Reference number must be provided').not().isEmpty(),
+    body('referral_code', 'Referral code must be provided').not().isEmpty()
+];
+
+const trackAppDownloadValidator = [
+    body('referral_code', 'Referral code must be provided').not().isEmpty()
+];
+
+const getInviteeByCodeValidator = [
+    param('code').notEmpty().withMessage('Referral code is required.'),
+    query('email').isEmail().withMessage('Valid email is required.'),
+    query('reference_number').notEmpty().withMessage('Reference number is required.')
+];
+
+const adminReferralListValidator = [
+    query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer.'),
+    query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit must be between 1 and 100.')
 ];
 
 module.exports = {
     signUpValidator,
-    googleSignUpValidator,	
+    googleSignUpValidator,
     googleSignInValidator,
     signInValidator,
     signOutValidator,
     healthCheckValidator,
     confirmEmailValidator,
-    confirmPhoneValidator,	
+    confirmPhoneValidator,
     addPhoneValidator,
     verifyPhoneValidator,
     updateProfileValidator,
     getProfileValidator,
     requestEmailOtpValidator,
-    requestPhoneOtpValidator,	
+    requestPhoneOtpValidator,
     instagramAuthValidator,
     instagramAuthCallbackValidator,
-    tiktokAuthValidator,	
+    tiktokAuthValidator,
     huggingFaceChatValidator,
     formDataValidator,
     tokenIdValidator,
     s3BucketValidator,
     blockchainWalletValidator,
-    forgetPasswordValidator,	
+    forgetPasswordValidator,
     passwordChangeValidator,
     getIgUserIdValidator,
     getUsersLocationValidator,
@@ -356,5 +386,13 @@ module.exports = {
     rotateTokenValidator,
     userAuthenticationValidator,
     emailValidator,
-    processReferralCodeValidator	
+    processReferralCodeValidator,
+    generateReferralCodeValidator,
+    withdrawInviteValidator,
+    trackAppDownloadValidator,
+    getUserInvitesValidator,
+    getInviteeByCodeValidator,
+    adminReferralListValidator	
 };
+
+

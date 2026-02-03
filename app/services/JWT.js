@@ -116,7 +116,7 @@ module.exports.jwtVerifyRefreshToken = (token, meta = {}) => {
          JWT_SECRET,{ 
             issuer: JWT_ISSUER,
             audience: JWT_AUDIENCE,		 
-            expiresIn: '1h',
+            expiresIn: ACCESS_TTL,
             algorithm: "HS256",		 
 	 });
          resolve(token);
@@ -194,7 +194,7 @@ module.exports.rotateRefreshToken = (oldRefreshToken, meta = {}) => {
   rec.replacedBy = newDecoded?.jti || null;
 
   const access_token = signAccess({ email, reference_number });
-  return [true,{ access_token, refresh_token: newRefresh, token_type: "Bearer", expires_in: 60 * 60 }]; // 1h for compatibility
+  return [true,{ access_token, refresh_token: newRefresh, token_type: "Bearer", expires_in: 15 * 60 }]; // 1h for compatibility
 };
 
 /**

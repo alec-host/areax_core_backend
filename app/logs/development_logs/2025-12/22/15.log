@@ -1,0 +1,7 @@
+2025-12-22T15:48:47.318Z [INFO]: [STATUS: 200] USER_INFO: EMAIL:- irualec@yahoo.com - REF_NO:- AXS_74b71c68-cd0c-427d-a4d2-401aec8a4f2b | IP: 102.209.76.51 | Location: Public Network | POST /api/v1/refreshAccessToken | 13.46 ms
+2025-12-22T15:49:23.562Z [INFO]: [STATUS: 404] USER_INFO: EMAIL:- Anonymous - REF_NO:- Anonymous | IP: 64.227.32.66 | Location: Public Network | POST /api/graphql | 1.25 ms
+2025-12-22T15:49:23.597Z [INFO]: [STATUS: 404] USER_INFO: EMAIL:- Anonymous - REF_NO:- Anonymous | IP: 206.189.19.19 | Location: Public Network | POST /api/graphql | 0.53 ms
+2025-12-22T15:49:24.033Z [INFO]: [STATUS: 404] USER_INFO: EMAIL:- Anonymous - REF_NO:- Anonymous | IP: 64.227.32.66 | Location: Public Network | POST /api/gql | 0.64 ms
+2025-12-22T15:49:24.060Z [INFO]: [STATUS: 404] USER_INFO: EMAIL:- Anonymous - REF_NO:- Anonymous | IP: 206.189.19.19 | Location: Public Network | POST /api/gql | 0.47 ms
+2025-12-22T15:49:34.224Z [INFO]: [STATUS: 404] USER_INFO: EMAIL:- Anonymous - REF_NO:- Anonymous | IP: 64.227.32.66 | Location: Public Network | GET /api/swagger.json | 1.03 ms
+2025-12-22T15:49:34.506Z [INFO]: [STATUS: 404] USER_INFO: EMAIL:- Anonymous - REF_NO:- Anonymous | IP: 206.189.19.19 | Location: Public Network | GET /api/swagger.json | 0.53 ms

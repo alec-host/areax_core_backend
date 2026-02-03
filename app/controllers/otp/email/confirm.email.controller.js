@@ -3,7 +3,9 @@ const { findUserCountByEmail } = require("../../user/find.user.count.by.email");
 const { findUserCountByReferenceNumber } = require("../../user/find.user.count.by.reference.no");
 const { modifyUserByEmail } = require("../../user/modify.user.by.email");
 const { confirmMailOtp } = require("../../otp/confirm.mail.otp");
+const { confirmRefereeEmail } = require('../../user/process.referral.code');
 const { purgeOtp } = require("../../otp/purge.mail.otp");
+const { postReferralDataForWeePointReward } = require("../../../utils/post.wee.points");
 
 exports.ConfirmEmail = async(req,res) => {
     const { email, reference_number, otp } = req.body;
@@ -41,7 +43,14 @@ exports.ConfirmEmail = async(req,res) => {
           return;
        }
        await purgeOtp(email);
-       await modifyUserByEmail(email,{email_verified:1});
+       await modifyUserByEmail(email,{email_verified:1});	    
+       const [ ok, referraldata ] = await confirmRefereeEmail(email,reference_number);	     
+       if(ok){
+	  const referrer_email = referraldata.referrer_email;
+	  const referee_email = referraldata.referee_email;     
+	  const resp = await postReferralDataForWeePointReward({ referrer_email, referee_email });    
+	  console.log(resp);     
+       }	    
        res.status(200).json({
            success: true,
            error: false,

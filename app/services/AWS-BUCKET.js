@@ -24,7 +24,7 @@ module.exports.awsBucket = (fileName,fileType,filePath) => {
                 Key: fileName,
                 Body: data,
                 ContentType: fileType,
-                ACL: 'public-read'
+                //ACL: 'public-read'
             };
 
             s3.upload(params, (err, data) => {

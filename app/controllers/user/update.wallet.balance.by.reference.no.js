@@ -29,7 +29,7 @@ module.exports.withdrawByReferenceNumber = async(reference_number,usedCredit) =>
     	cummulate_bal = (parseFloat(wallet.balance) - parseFloat(usedCredit));
     }else{
 	console.log('You do not have sufficient credit.');    
-	retun [false,'You do not have sufficient credit.'];
+	return [false,'You do not have sufficient credit.'];
     }	    
     const isUpdated = await Wallets.update({balance: cummulate_bal},{ where:{reference_number:reference_number}}).catch(e => { return [false,e.message]; });
     if(!isUpdated){

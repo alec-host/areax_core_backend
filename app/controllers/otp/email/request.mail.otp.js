@@ -32,7 +32,7 @@ exports.RequestEmailOtp = async(req,res) => {
           });
 	  return;
        }
-       const otpCode = generateRandomOtp();
+       const otpCode = generateRandomOtp();	    
        const waitTimeInMinutes = await otpWaitTimeInMinutes(email);
        if(waitTimeInMinutes !== null){
           const delay = JSON.stringify(waitTimeInMinutes);
@@ -61,7 +61,7 @@ exports.RequestEmailOtp = async(req,res) => {
               return;
 	   }    
        }else{
-	   const response = await sendGridEmailOtp(email,otpCode);
+	   const response = await sendGridEmailOtp(email,otpCode); 
            if(!response[0]){
               res.status(400).json({
                   success: false,
@@ -71,7 +71,7 @@ exports.RequestEmailOtp = async(req,res) => {
               return;		   
 	   }
 
-           await saveMailOtp({phone:0,email:email,message:response[2]});
+           await saveMailOtp({phone:0,email:email,message:response[2]}); 
            res.status(200).json({
                success: true,
                error: false,

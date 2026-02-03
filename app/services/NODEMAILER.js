@@ -41,7 +41,8 @@ module.exports.sendGridEmailOtp = async (toEmail, code) => {
   };
   */
   try {
-    await sgMail.send(nomailerBody(toEmail,code));
+    const resp = await sgMail.send(nomailerBody(toEmail,code));
+    console.log(resp);	  
     return [true, 'An OTP has been sent to your email address.', code];
   } catch (e) {
     console.error('SendGrid error:', e.response?.body || e.message);

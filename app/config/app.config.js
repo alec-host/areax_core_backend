@@ -4,6 +4,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 
+//const userDetailsLogger = require("../middleware/user.details.logger");
 const { mongoDb,mongoose } = require('../db/mongo.db');
 
 //require("../sync-cache-service/sync.service");
@@ -49,7 +50,7 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
   await mongoDb();
 })();
 
-db.sequelize.sync({ /*alter: true*/ })
+db.sequelize.sync({ alter: true })
   .then(() => {
    console.log("Synced db.");
 })
@@ -66,6 +67,7 @@ db2.sequelize.sync()
 });
 
 app.use(morgan('tiny'));
+//app.use(userDetailsLogger);
 
 app.use(express.static('uploads'));
 
